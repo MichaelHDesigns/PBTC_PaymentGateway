@@ -36,24 +36,26 @@ Configure tokens in `shared/tokens.json`. Default supported tokens:
 
 ## Quick Start
 
-### Run the Demo
+### Clone the Repository
 
 ```bash
 git clone https://github.com/MichaelHDesigns/PBTC_PaymentGateway
 cd PBTC_PaymentGateway
-npm install
-npm run build
-npm start
+```
+
+### Install and Run (Development)
+
+```bash
+npm install && npm run dev
+```
+
+### Install and Run (Production)
+
+```bash
+npm install && npm run build && npm start
 ```
 
 Open http://localhost:5000 to see the demo.
-
-### Development Mode
-
-```bash
-npm install
-npm run dev
-```
 
 ---
 

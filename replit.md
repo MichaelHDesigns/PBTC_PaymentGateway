@@ -6,7 +6,9 @@ A non-custodial payment gateway for Solana SPL tokens and native SOL.
 
 This is a React application providing a payment checkout for multiple Solana tokens. 
 
-**Quick Start:** Run `npm install` then `npm run build` then `npm start`
+**Quick Start:**
+- Development: `npm install && npm run dev`
+- Production: `npm install && npm run build && npm start`
 
 Key features:
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
