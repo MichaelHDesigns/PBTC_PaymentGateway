@@ -207,11 +207,13 @@ export async function sendSOLPayment(
     
     const balance = await connection.getBalance(new PublicKey(senderAddress));
     const balanceInSOL = balance / 1e9;
+    const estimatedFees = 0.00005;
+    const totalRequired = amount + estimatedFees;
     
-    if (balanceInSOL < amount + 0.001) {
+    if (balanceInSOL < totalRequired) {
       return { 
         success: false, 
-        error: `Insufficient SOL balance. You have ${balanceInSOL.toFixed(4)} SOL but need ${amount} SOL plus fees.` 
+        error: `Insufficient SOL balance. You have ${balanceInSOL.toFixed(6)} SOL but need approximately ${totalRequired.toFixed(6)} SOL (${amount} + fees).` 
       };
     }
     
@@ -219,7 +221,7 @@ export async function sendSOLPayment(
       SystemProgram.transfer({
         fromPubkey: new PublicKey(senderAddress),
         toPubkey: new PublicKey(recipientAddress),
-        lamports: Math.floor(amount * 1e9),
+        lamports: Math.round(amount * 1e9),
       })
     );
     

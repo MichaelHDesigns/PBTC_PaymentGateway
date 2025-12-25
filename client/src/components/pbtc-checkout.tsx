@@ -159,14 +159,18 @@ export function PBTCCheckout({
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">P</span>
+                  {paymentType === "SOL" ? (
+                    <SiSolana className="w-5 h-5 text-primary-foreground" />
+                  ) : (
+                    <span className="text-primary-foreground font-bold text-lg">P</span>
+                  )}
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-semibold" data-testid="text-checkout-title">
-                    PBTC Payment
+                    {paymentType === "SOL" ? "Solana Payment" : "PBTC Payment"}
                   </DialogTitle>
                   <DialogDescription className="text-sm text-muted-foreground">
-                    Secure SPL Token Transfer
+                    {paymentType === "SOL" ? "Native SOL Transfer" : "Secure SPL Token Transfer"}
                   </DialogDescription>
                 </div>
               </div>

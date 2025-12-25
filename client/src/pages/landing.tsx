@@ -380,7 +380,7 @@ if (paid) {
                   data-testid="button-open-demo-checkout"
                 >
                   <Wallet className="w-4 h-4 mr-2" />
-                  Open Checkout ({demoAmount} {PBTC_CONFIG.symbol})
+                  Pay with PBTC or SOL
                 </Button>
 
                 <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-2">

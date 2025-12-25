@@ -31,6 +31,7 @@ export const paymentRequests = pgTable("payment_requests", {
   status: text("status").notNull().default("pending"),
   signature: text("signature"),
   expectedPayer: text("expected_payer"),
+  paymentType: text("payment_type").notNull().default("PBTC"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -42,6 +43,7 @@ export const insertPaymentRequestSchema = createInsertSchema(
   signature: true,
   status: true,
   expectedPayer: true,
+  paymentType: true,
 });
 
 export const initPaymentSchema = z.object({
@@ -50,6 +52,7 @@ export const initPaymentSchema = z.object({
   reference: z.string().min(1, "Reference is required"),
   memo: z.string().optional(),
   payerWallet: z.string().min(32, "Payer wallet is required").optional(),
+  paymentType: z.enum(["PBTC", "SOL"]).default("PBTC"),
 });
 
 export type InsertPaymentRequest = z.infer<typeof insertPaymentRequestSchema>;

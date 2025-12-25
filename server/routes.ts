@@ -200,7 +200,7 @@ export async function registerRoutes(
         });
       }
 
-      const { merchantWallet, amount, reference, memo, payerWallet } = result.data;
+      const { merchantWallet, amount, reference, memo, payerWallet, paymentType } = result.data;
 
       const existingPayment = await storage.getPaymentByReference(reference);
       if (existingPayment) {
@@ -231,7 +231,8 @@ export async function registerRoutes(
 
       const payment = await storage.createPaymentRequest(
         { merchantWallet, amount, reference, memo },
-        payerWallet
+        payerWallet,
+        paymentType
       );
       
       return res.status(201).json({
@@ -341,7 +342,15 @@ export async function registerRoutes(
         });
       }
 
-      const verifyFn = paymentType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
+      const storedPaymentType = payment.paymentType || "PBTC";
+      if (paymentType && paymentType !== storedPaymentType) {
+        return res.status(400).json({
+          success: false,
+          error: `Payment type mismatch: this payment was created for ${storedPaymentType} but you're trying to confirm with ${paymentType}`,
+        });
+      }
+
+      const verifyFn = storedPaymentType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
       const verification = await verifyFn(
         signature,
         payment.merchantWallet,
@@ -417,7 +426,9 @@ export async function registerRoutes(
       const isPaid = payment.status === "confirmed" && payment.signature;
 
       if (isPaid && payment.signature) {
-        const verification = await verifyPBTCTransactionOnChain(
+        const storedType = payment.paymentType || "PBTC";
+        const verifyFn = storedType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
+        const verification = await verifyFn(
           payment.signature,
           payment.merchantWallet,
           payment.amount,

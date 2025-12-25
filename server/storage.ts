@@ -6,7 +6,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  createPaymentRequest(payment: InsertPaymentRequest, expectedPayer?: string): Promise<PaymentRequest>;
+  createPaymentRequest(payment: InsertPaymentRequest, expectedPayer?: string, paymentType?: string): Promise<PaymentRequest>;
   getPaymentByReference(reference: string): Promise<PaymentRequest | undefined>;
   getPaymentBySignature(signature: string): Promise<PaymentRequest | undefined>;
   updatePaymentStatus(reference: string, status: string, signature?: string): Promise<PaymentRequest | undefined>;
@@ -43,7 +43,7 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async createPaymentRequest(payment: InsertPaymentRequest, expectedPayer?: string): Promise<PaymentRequest> {
+  async createPaymentRequest(payment: InsertPaymentRequest, expectedPayer?: string, paymentType?: string): Promise<PaymentRequest> {
     const id = randomUUID();
     const paymentRequest: PaymentRequest = {
       id,
@@ -54,6 +54,7 @@ export class MemStorage implements IStorage {
       status: "pending",
       signature: null,
       expectedPayer: expectedPayer || null,
+      paymentType: paymentType || "PBTC",
       createdAt: new Date(),
     };
     this.payments.set(payment.reference, paymentRequest);
