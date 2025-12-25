@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { initPaymentSchema, verifyPaymentSchema, PBTC_CONFIG, getServerRpcUrl } from "@shared/schema";
+import { initPaymentSchema, verifyPaymentSchema, PBTC_CONFIG, getServerRpcUrl, getTokenById } from "@shared/schema";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const rpcUrl = getServerRpcUrl();
@@ -87,10 +87,12 @@ async function verifySOLTransactionOnChain(
   }
 }
 
-async function verifyPBTCTransactionOnChain(
+async function verifySPLTokenTransactionOnChain(
   signature: string,
   merchantWallet: string,
   expectedAmount: number,
+  mintAddress: string,
+  tokenSymbol: string,
   expectedSender?: string
 ): Promise<VerificationResult> {
   try {
@@ -110,15 +112,15 @@ async function verifyPBTCTransactionOnChain(
     const preBalances = tx.meta?.preTokenBalances || [];
 
     const recipientPost = postBalances.find(
-      (b) => b.owner === merchantWallet && b.mint === PBTC_CONFIG.mint
+      (b) => b.owner === merchantWallet && b.mint === mintAddress
     );
 
     if (!recipientPost) {
-      return { valid: false, error: "Merchant wallet not found in transaction token balances" };
+      return { valid: false, error: `Merchant wallet not found in transaction token balances for ${tokenSymbol}` };
     }
 
     const recipientPre = preBalances.find(
-      (b) => b.owner === merchantWallet && b.mint === PBTC_CONFIG.mint
+      (b) => b.owner === merchantWallet && b.mint === mintAddress
     );
 
     const postAmount = parseFloat(recipientPost.uiTokenAmount?.uiAmountString || "0");
@@ -126,13 +128,13 @@ async function verifyPBTCTransactionOnChain(
     const receivedAmount = postAmount - preAmount;
 
     if (receivedAmount <= 0) {
-      return { valid: false, error: "No positive transfer to merchant detected" };
+      return { valid: false, error: `No positive ${tokenSymbol} transfer to merchant detected` };
     }
 
     if (Math.abs(receivedAmount - expectedAmount) > 0.0001) {
       return { 
         valid: false, 
-        error: `Amount mismatch: expected ${expectedAmount} PBTC, received ${receivedAmount} PBTC`,
+        error: `Amount mismatch: expected ${expectedAmount} ${tokenSymbol}, received ${receivedAmount} ${tokenSymbol}`,
         receivedAmount 
       };
     }
@@ -140,10 +142,10 @@ async function verifyPBTCTransactionOnChain(
     let actualSender: string | undefined;
     
     for (const tokenBalance of preBalances) {
-      if (tokenBalance.mint === PBTC_CONFIG.mint && tokenBalance.owner !== merchantWallet) {
+      if (tokenBalance.mint === mintAddress && tokenBalance.owner !== merchantWallet) {
         const preAmt = parseFloat(tokenBalance.uiTokenAmount?.uiAmountString || "0");
         const postMatch = postBalances.find(
-          (p) => p.owner === tokenBalance.owner && p.mint === PBTC_CONFIG.mint
+          (p) => p.owner === tokenBalance.owner && p.mint === mintAddress
         );
         const postAmt = parseFloat(postMatch?.uiTokenAmount?.uiAmountString || "0");
         
@@ -177,6 +179,40 @@ async function verifyPBTCTransactionOnChain(
     console.error("On-chain verification error:", error);
     return { valid: false, error: "Failed to verify transaction on-chain. Please try again." };
   }
+}
+
+async function verifyTokenTransaction(
+  signature: string,
+  merchantWallet: string,
+  expectedAmount: number,
+  paymentType: string,
+  expectedSender?: string
+): Promise<VerificationResult> {
+  if (paymentType.toLowerCase() === "sol") {
+    return verifySOLTransactionOnChain(signature, merchantWallet, expectedAmount, expectedSender);
+  }
+  
+  const token = getTokenById(paymentType.toLowerCase());
+  if (!token) {
+    return { valid: false, error: `Unknown token type: ${paymentType}` };
+  }
+  
+  if (token.type === "native") {
+    return verifySOLTransactionOnChain(signature, merchantWallet, expectedAmount, expectedSender);
+  }
+  
+  if (!token.mintAddress) {
+    return { valid: false, error: `Token ${token.symbol} has no mint address configured` };
+  }
+  
+  return verifySPLTokenTransactionOnChain(
+    signature,
+    merchantWallet,
+    expectedAmount,
+    token.mintAddress,
+    token.symbol,
+    expectedSender
+  );
 }
 
 async function isTransactionAlreadyUsed(signature: string): Promise<boolean> {
@@ -342,19 +378,17 @@ export async function registerRoutes(
         });
       }
 
-      const storedPaymentType = payment.paymentType || "PBTC";
-      if (paymentType && paymentType !== storedPaymentType) {
-        return res.status(400).json({
-          success: false,
-          error: `Payment type mismatch: this payment was created for ${storedPaymentType} but you're trying to confirm with ${paymentType}`,
-        });
+      const currentPaymentType = paymentType || payment.paymentType || "pbtc";
+      
+      if (payment.paymentType && paymentType && payment.paymentType !== paymentType) {
+        await storage.updatePaymentType(reference, paymentType);
       }
 
-      const verifyFn = storedPaymentType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
-      const verification = await verifyFn(
+      const verification = await verifyTokenTransaction(
         signature,
         payment.merchantWallet,
         payment.amount,
+        currentPaymentType,
         payment.expectedPayer || senderWallet
       );
 
@@ -426,12 +460,12 @@ export async function registerRoutes(
       const isPaid = payment.status === "confirmed" && payment.signature;
 
       if (isPaid && payment.signature) {
-        const storedType = payment.paymentType || "PBTC";
-        const verifyFn = storedType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
-        const verification = await verifyFn(
+        const storedType = payment.paymentType || "pbtc";
+        const verification = await verifyTokenTransaction(
           payment.signature,
           payment.merchantWallet,
           payment.amount,
+          storedType,
           payment.expectedPayer || undefined
         );
 
@@ -466,7 +500,7 @@ export async function registerRoutes(
 
   app.post("/api/verify-onchain", async (req, res) => {
     try {
-      const { signature, merchantWallet, expectedAmount, senderWallet } = req.body;
+      const { signature, merchantWallet, expectedAmount, senderWallet, paymentType = "pbtc" } = req.body;
 
       if (!signature || !merchantWallet) {
         return res.status(400).json({
@@ -475,10 +509,11 @@ export async function registerRoutes(
         });
       }
 
-      const verification = await verifyTransactionOnChain(
+      const verification = await verifyTokenTransaction(
         signature,
         merchantWallet,
         expectedAmount || 0,
+        paymentType,
         senderWallet
       );
 

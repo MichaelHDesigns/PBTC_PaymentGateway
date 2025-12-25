@@ -10,6 +10,7 @@ export interface IStorage {
   getPaymentByReference(reference: string): Promise<PaymentRequest | undefined>;
   getPaymentBySignature(signature: string): Promise<PaymentRequest | undefined>;
   updatePaymentStatus(reference: string, status: string, signature?: string): Promise<PaymentRequest | undefined>;
+  updatePaymentType(reference: string, paymentType: string): Promise<PaymentRequest | undefined>;
   setExpectedPayer(reference: string, payerWallet: string): Promise<PaymentRequest | undefined>;
   getPaymentsByMerchant(merchantWallet: string): Promise<PaymentRequest[]>;
   getAllPayments(): Promise<PaymentRequest[]>;
@@ -99,6 +100,15 @@ export class MemStorage implements IStorage {
     }
     
     payment.expectedPayer = payerWallet;
+    this.payments.set(reference, payment);
+    return payment;
+  }
+
+  async updatePaymentType(reference: string, paymentType: string): Promise<PaymentRequest | undefined> {
+    const payment = this.payments.get(reference);
+    if (!payment) return undefined;
+    
+    payment.paymentType = paymentType;
     this.payments.set(reference, payment);
     return payment;
   }
