@@ -23,6 +23,7 @@ import {
   Menu,
 } from "lucide-react";
 import { SiGithub, SiSolana } from "react-icons/si";
+import pbtcLogo from "@assets/pbtc_1766635861226.png";
 
 const DEMO_MERCHANT_WALLET = "EhPSjrUBDRfhFVzo5khir78mbuHu76rdVTonJdAKG7CD";
 const GITHUB_URL = "https://github.com/MichaelHDesigns/PBTC_PaymentGateway";
@@ -100,9 +101,7 @@ if (paid) {
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground font-bold text-base sm:text-lg">P</span>
-            </div>
+            <img src={pbtcLogo} alt="PBTC" className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex-shrink-0" />
             <span className="font-semibold text-base sm:text-lg hidden xs:inline" data-testid="text-logo">
               PBTC Pay
             </span>
@@ -124,7 +123,7 @@ if (paid) {
               Docs
             </button>
             <a
-              href="https://github.com"
+              href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
@@ -621,9 +620,7 @@ if (paid) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm sm:text-base">P</span>
-              </div>
+              <img src={pbtcLogo} alt="PBTC" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg" />
               <span className="text-xs sm:text-sm text-muted-foreground">
                 PBTC Pay - Non-custodial payments
               </span>
