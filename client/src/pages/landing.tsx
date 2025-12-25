@@ -484,6 +484,10 @@ if (paid) {
           </div>
 
           <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl font-semibold mb-4">Test This Application</h3>
+            </div>
+
             <Card data-testid="card-docs-step-1">
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -542,11 +546,15 @@ if (paid) {
               </CardContent>
             </Card>
 
+            <div className="text-center pt-6">
+              <h3 className="text-lg sm:text-xl font-semibold mb-4">Use in Your Application</h3>
+            </div>
+
             <Card data-testid="card-docs-step-3">
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
-                    3
+                    1
                   </span>
                   <CardTitle className="text-base sm:text-lg">Copy Files to Your Project</CardTitle>
                 </div>
@@ -567,7 +575,7 @@ if (paid) {
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
-                    4
+                    2
                   </span>
                   <CardTitle className="text-base sm:text-lg">Install Dependencies</CardTitle>
                 </div>
@@ -596,7 +604,7 @@ if (paid) {
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
-                    5
+                    3
                   </span>
                   <CardTitle className="text-base sm:text-lg">Use the Component</CardTitle>
                 </div>
@@ -630,7 +638,7 @@ if (paid) {
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
-                    6
+                    4
                   </span>
                   <CardTitle className="text-base sm:text-lg">Verify Payments (Backend)</CardTitle>
                 </div>
