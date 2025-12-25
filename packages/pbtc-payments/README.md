@@ -1,17 +1,17 @@
-# @pbtc/payments
+# pbtc-payment-gateway
 
 Non-custodial payment gateway for PBTC and SOL on Solana.
 
 ## Installation
 
 ```bash
-npm install @pbtc/payments
+npm install pbtc-payment-gateway
 ```
 
 ## Usage
 
 ```jsx
-import { PBTCCheckout, PBTCCheckoutButton } from '@pbtc/payments';
+import { PBTCCheckout, PBTCCheckoutButton } from 'pbtc-payment-gateway';
 
 // Simple button that opens checkout modal
 function App() {
@@ -62,7 +62,7 @@ function App() {
 ## Utilities
 
 ```js
-import { sendPBTCPayment, sendSOLPayment, getConnection } from '@pbtc/payments';
+import { sendPBTCPayment, sendSOLPayment, getConnection } from 'pbtc-payment-gateway';
 
 // Direct PBTC transfer
 const result = await sendPBTCPayment(recipientWallet, amount, memo);
