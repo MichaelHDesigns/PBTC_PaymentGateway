@@ -1,11 +1,12 @@
 # PBTC Payment Gateway
 
-A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token on Solana.
+A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native SOL on Solana.
 
 ## Overview
 
-This application provides a drop-in payment component for accepting PBTC payments. Key features:
+This application provides a drop-in payment component for accepting PBTC or SOL payments. Key features:
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
+- **Dual currency**: Accept both PBTC (SPL token) and native SOL
 - **Developer-friendly**: React component with simple props
 - **Verification backend**: API endpoints to verify payments on-chain
 - **No KYC required**: Permissionless, composable payments
@@ -41,9 +42,11 @@ Create a new payment request. Optionally locks the payment to a specific payer w
   "amount": 25,
   "reference": "ORDER_123",
   "memo": "Payment description",
-  "payerWallet": "PAYER_WALLET_ADDRESS"
+  "payerWallet": "PAYER_WALLET_ADDRESS",
+  "paymentType": "PBTC"
 }
 ```
+- `paymentType`: Either "PBTC" (default) or "SOL"
 
 ### POST /api/payments/lock
 Lock an existing payment to a specific payer wallet (security feature to prevent replay attacks).
@@ -55,14 +58,16 @@ Lock an existing payment to a specific payer wallet (security feature to prevent
 ```
 
 ### POST /api/payments/confirm
-Confirm a payment after transaction. Backend verifies the sender matches the locked wallet.
+Confirm a payment after transaction. Backend verifies the sender matches the locked wallet and payment type.
 ```json
 {
   "reference": "ORDER_123",
   "signature": "TRANSACTION_SIGNATURE",
-  "senderWallet": "PAYER_WALLET_ADDRESS"
+  "senderWallet": "PAYER_WALLET_ADDRESS",
+  "paymentType": "PBTC"
 }
 ```
+- The server validates that the `paymentType` matches what was specified during payment creation
 
 ### POST /api/verify-payment
 Verify a payment by reference
