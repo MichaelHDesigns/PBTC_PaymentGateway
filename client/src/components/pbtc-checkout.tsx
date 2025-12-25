@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,8 +69,15 @@ export function PBTCCheckout({
     return SUPPORTED_TOKENS.filter(t => t.id === "pbtc");
   }, [enabledTokens, tokenAmounts, solAmount]);
 
+  useEffect(() => {
+    if (availableTokens.length > 0 && !availableTokens.find(t => t.id === selectedTokenId)) {
+      setSelectedTokenId(availableTokens[0].id);
+    }
+  }, [availableTokens, selectedTokenId]);
+
   const selectedToken = useMemo(() => {
-    return availableTokens.find(t => t.id === selectedTokenId) || availableTokens[0];
+    const found = availableTokens.find(t => t.id === selectedTokenId);
+    return found || availableTokens[0] || SUPPORTED_TOKENS[0];
   }, [availableTokens, selectedTokenId]);
 
   const currentAmount = useMemo(() => {

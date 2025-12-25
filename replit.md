@@ -1,19 +1,27 @@
 # PBTC Payment Gateway
 
-A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native SOL on Solana.
+A non-custodial payment gateway for Solana SPL tokens and native SOL.
 
 ## Overview
 
-This is a React application providing a payment checkout for PBTC or SOL payments. 
+This is a React application providing a payment checkout for multiple Solana tokens. 
 
 **Quick Start:** Run `npm install` then `npm run dev`
 
 Key features:
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
-- **Dual currency**: Accept both PBTC (SPL token) and native SOL
+- **Multi-token support**: Accept SOL, PBTC, USDC, USDT (configurable via tokens.json)
 - **Mobile responsive**: Works on all devices
 - **On-chain verification**: Backend API to verify payments
 - **No KYC required**: Permissionless payments
+
+## Supported Tokens
+
+Configured in `shared/tokens.json`:
+- SOL (native Solana)
+- PBTC (Purple Bitcoin) - Mint: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
+- USDC - Mint: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
+- USDT - Mint: `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`
 
 ## Project Architecture
 
@@ -29,12 +37,14 @@ Key features:
 - **Solana web3.js** for on-chain verification
 
 ### Key Files
-- `client/src/components/pbtc-checkout.tsx` - Main checkout modal component
+- `client/src/components/pbtc-checkout.tsx` - Main checkout modal component with token selector
 - `client/src/components/transaction-status.tsx` - Transaction status display
 - `client/src/pages/landing.tsx` - Demo landing page
 - `client/src/lib/wallet-context.tsx` - Phantom wallet integration
+- `client/src/lib/solana-utils.ts` - Solana token transfer utilities
 - `server/routes.ts` - Payment API endpoints
-- `shared/schema.ts` - Data types and PBTC configuration
+- `shared/schema.ts` - Data types and token configuration
+- `shared/tokens.json` - Token definitions (add/remove tokens here)
 
 ## API Endpoints
 
@@ -47,10 +57,10 @@ Create a new payment request. Optionally locks the payment to a specific payer w
   "reference": "ORDER_123",
   "memo": "Payment description",
   "payerWallet": "PAYER_WALLET_ADDRESS",
-  "paymentType": "PBTC"
+  "paymentType": "pbtc"
 }
 ```
-- `paymentType`: Either "PBTC" (default) or "SOL"
+- `paymentType`: Token ID from tokens.json (e.g., "sol", "pbtc", "usdc", "usdt")
 
 ### POST /api/payments/lock
 Lock an existing payment to a specific payer wallet (security feature to prevent replay attacks).
@@ -62,16 +72,15 @@ Lock an existing payment to a specific payer wallet (security feature to prevent
 ```
 
 ### POST /api/payments/confirm
-Confirm a payment after transaction. Backend verifies the sender matches the locked wallet and payment type.
+Confirm a payment after transaction. Backend verifies the sender matches the locked wallet.
 ```json
 {
   "reference": "ORDER_123",
   "signature": "TRANSACTION_SIGNATURE",
   "senderWallet": "PAYER_WALLET_ADDRESS",
-  "paymentType": "PBTC"
+  "paymentType": "pbtc"
 }
 ```
-- The server validates that the `paymentType` matches what was specified during payment creation
 
 ### POST /api/verify-payment
 Verify a payment by reference
@@ -92,13 +101,6 @@ Verify a transaction on-chain
   "expectedAmount": 25
 }
 ```
-
-## PBTC Token Configuration
-
-Located in `shared/schema.ts`:
-- Mint Address: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
-- Decimals: 9
-- Network: Solana mainnet-beta
 
 ## Security Features
 
