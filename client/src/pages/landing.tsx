@@ -25,6 +25,7 @@ import {
 import { SiGithub, SiSolana } from "react-icons/si";
 
 const DEMO_MERCHANT_WALLET = "EhPSjrUBDRfhFVzo5khir78mbuHu76rdVTonJdAKG7CD";
+const GITHUB_URL = "https://github.com/MichaelHDesigns/PBTC_PaymentGateway";
 
 export default function Landing() {
   const { connected, connecting, publicKey, connect, disconnect } = useWallet();
@@ -580,10 +581,12 @@ if (paid) {
             </Card>
 
             <div className="text-center pt-2 sm:pt-4">
-              <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="button-full-docs">
-                <ExternalLink className="w-4 h-4" />
-                View Full Documentation
-              </Button>
+              <a href={`${GITHUB_URL}#readme`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="button-full-docs">
+                  <ExternalLink className="w-4 h-4" />
+                  View Full Documentation
+                </Button>
+              </a>
             </div>
           </div>
         </div>
@@ -603,10 +606,12 @@ if (paid) {
                 Get Started
                 <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button variant="outline" className="w-full sm:w-auto gap-2" data-testid="button-github-cta">
-                <SiGithub className="w-4 h-4" />
-                Star on GitHub
-              </Button>
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="w-full sm:w-auto gap-2" data-testid="button-github-cta">
+                  <SiGithub className="w-4 h-4" />
+                  Star on GitHub
+                </Button>
+              </a>
             </div>
           </div>
         </div>
@@ -631,7 +636,7 @@ if (paid) {
                 Privacy
               </a>
               <a
-                href="https://github.com"
+                href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-foreground transition-colors"
