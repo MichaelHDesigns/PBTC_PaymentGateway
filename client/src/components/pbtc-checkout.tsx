@@ -142,8 +142,8 @@ export function PBTCCheckout({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 pb-4">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md p-0 gap-0 overflow-hidden mx-auto">
+        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 sm:p-6 pb-3 sm:pb-4">
           <DialogHeader className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -167,12 +167,12 @@ export function PBTCCheckout({
           </DialogHeader>
         </div>
 
-        <div className="p-6 space-y-6">
-          <div className="text-center py-4">
-            <div className="text-4xl font-bold text-foreground" data-testid="text-payment-amount">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="text-center py-2 sm:py-4">
+            <div className="text-2xl sm:text-4xl font-bold text-foreground" data-testid="text-payment-amount">
               {amount.toLocaleString()} {PBTC_CONFIG.symbol}
             </div>
-            <p className="text-sm text-muted-foreground mt-1">Purple Bitcoin</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Purple Bitcoin</p>
           </div>
 
           <div className="space-y-3">
@@ -296,10 +296,10 @@ export function PBTCCheckout({
             </div>
           )}
 
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2 sm:space-y-3 pt-1 sm:pt-2">
             {status === "confirmed" ? (
               <Button
-                className="w-full h-12 text-base"
+                className="w-full h-10 sm:h-12 text-sm sm:text-base"
                 onClick={resetAndClose}
                 data-testid="button-done"
               >
@@ -308,7 +308,7 @@ export function PBTCCheckout({
             ) : status === "failed" ? (
               <>
                 <Button
-                  className="w-full h-12 text-base"
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
                   onClick={handleRetry}
                   data-testid="button-retry"
                 >
@@ -316,7 +316,7 @@ export function PBTCCheckout({
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full"
+                  className="w-full text-sm"
                   onClick={handleCancel}
                   data-testid="button-cancel"
                 >
@@ -327,7 +327,7 @@ export function PBTCCheckout({
             ) : (
               <>
                 <Button
-                  className="w-full h-12 text-base"
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
                   onClick={handlePayment}
                   disabled={processing || connecting}
                   data-testid="button-pay"
@@ -335,30 +335,34 @@ export function PBTCCheckout({
                   {processing ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing Payment...
+                      <span className="hidden sm:inline">Processing Payment...</span>
+                      <span className="sm:hidden">Processing...</span>
                     </>
                   ) : connecting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Connecting Wallet...
+                      <span className="hidden sm:inline">Connecting Wallet...</span>
+                      <span className="sm:hidden">Connecting...</span>
                     </>
                   ) : connected ? (
                     `Pay ${amount} ${PBTC_CONFIG.symbol}`
                   ) : isPhantomInstalled ? (
                     <>
                       <Wallet className="w-4 h-4 mr-2" />
-                      Connect Wallet to Pay
+                      <span className="hidden sm:inline">Connect Wallet to Pay</span>
+                      <span className="sm:hidden">Connect Wallet</span>
                     </>
                   ) : (
                     <>
                       <Wallet className="w-4 h-4 mr-2" />
-                      Install Phantom Wallet
+                      <span className="hidden sm:inline">Install Phantom Wallet</span>
+                      <span className="sm:hidden">Install Phantom</span>
                     </>
                   )}
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full"
+                  className="w-full text-sm"
                   onClick={handleCancel}
                   disabled={processing}
                   data-testid="button-cancel"
@@ -370,9 +374,9 @@ export function PBTCCheckout({
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-2">
-            <Shield className="w-3 h-3" />
-            <span>Non-custodial payment powered by Solana</span>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1 sm:pt-2">
+            <Shield className="w-3 h-3 flex-shrink-0" />
+            <span className="text-center">Non-custodial payment powered by Solana</span>
           </div>
         </div>
       </DialogContent>

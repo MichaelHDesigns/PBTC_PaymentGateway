@@ -76,43 +76,43 @@ export function TransactionStatus({ transaction }: TransactionStatusProps) {
   };
 
   return (
-    <Card className="w-full max-w-md" data-testid={`card-transaction-${transaction.reference}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-base font-medium">Transaction Status</CardTitle>
-          <Badge variant={config.badgeVariant} className="gap-1" data-testid="badge-tx-status">
+    <Card className="w-full" data-testid={`card-transaction-${transaction.reference}`}>
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <CardTitle className="text-sm sm:text-base font-medium">Transaction Status</CardTitle>
+          <Badge variant={config.badgeVariant} className="gap-1 text-xs" data-testid="badge-tx-status">
             <Icon className={`w-3 h-3 ${transaction.status === "processing" ? "animate-spin" : ""}`} />
             {config.label}
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className={`p-4 rounded-lg ${config.bgColor} flex items-center gap-3`}>
-          <div className={`w-10 h-10 rounded-full ${config.bgColor} flex items-center justify-center`}>
-            <Icon className={`w-5 h-5 ${config.color} ${transaction.status === "processing" ? "animate-spin" : ""} ${transaction.status === "pending" ? "animate-pulse-soft" : ""}`} />
+      <CardContent className="space-y-3 sm:space-y-4">
+        <div className={`p-3 sm:p-4 rounded-lg ${config.bgColor} flex items-center gap-2 sm:gap-3`}>
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
+            <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${config.color} ${transaction.status === "processing" ? "animate-spin" : ""} ${transaction.status === "pending" ? "animate-pulse-soft" : ""}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold" data-testid="text-tx-amount">
+            <p className="font-semibold text-sm sm:text-base" data-testid="text-tx-amount">
               {transaction.amount.toLocaleString()} {PBTC_CONFIG.symbol}
             </p>
-            <p className="text-sm text-muted-foreground truncate">
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
               To: {truncateAddress(transaction.merchantWallet, 6)}
             </p>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
+        <div className="space-y-1.5 sm:space-y-2">
+          <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
             <span className="text-muted-foreground">Signature</span>
             <div className="flex items-center gap-1">
-              <span className="font-mono text-xs" data-testid="text-tx-signature">
+              <span className="font-mono text-xs truncate max-w-[120px] sm:max-w-none" data-testid="text-tx-signature">
                 {truncateAddress(transaction.signature, 8)}
               </span>
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={copySignature}
-                className="h-7 w-7"
+                className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0"
                 data-testid="button-copy-tx-signature"
               >
                 {copied ? (
@@ -124,15 +124,15 @@ export function TransactionStatus({ transaction }: TransactionStatusProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
             <span className="text-muted-foreground">Reference</span>
-            <span className="font-mono text-xs" data-testid="text-tx-reference">
+            <span className="font-mono text-xs truncate max-w-[140px] sm:max-w-none" data-testid="text-tx-reference">
               {transaction.reference}
             </span>
           </div>
 
           {transaction.confirmations !== undefined && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
               <span className="text-muted-foreground">Confirmations</span>
               <span className="font-mono text-xs" data-testid="text-tx-confirmations">
                 {transaction.confirmations}
@@ -141,7 +141,7 @@ export function TransactionStatus({ transaction }: TransactionStatusProps) {
           )}
 
           {transaction.timestamp && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between gap-2 text-xs sm:text-sm">
               <span className="text-muted-foreground">Time</span>
               <span className="text-xs" data-testid="text-tx-timestamp">
                 {new Date(transaction.timestamp).toLocaleString()}
@@ -152,6 +152,7 @@ export function TransactionStatus({ transaction }: TransactionStatusProps) {
 
         <Button
           variant="outline"
+          size="sm"
           className="w-full gap-2"
           onClick={openExplorer}
           data-testid="button-view-explorer"

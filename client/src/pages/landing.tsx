@@ -20,6 +20,7 @@ import {
   ArrowRight,
   ExternalLink,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 import { SiGithub, SiSolana } from "react-icons/si";
 
@@ -33,6 +34,7 @@ export default function Landing() {
   const [demoReference, setDemoReference] = useState(`ORDER_${Date.now().toString(36).toUpperCase()}`);
   const [recentTransaction, setRecentTransaction] = useState<TransactionDetails | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const copyCode = async (code: string, label: string) => {
     try {
@@ -60,10 +62,12 @@ export default function Landing() {
 
   const scrollToDemo = () => {
     document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" });
+    setMobileMenuOpen(false);
   };
 
   const scrollToDocs = () => {
     document.getElementById("docs")?.scrollIntoView({ behavior: "smooth" });
+    setMobileMenuOpen(false);
   };
 
   const componentCode = `<PBTCCheckout
@@ -92,12 +96,12 @@ if (paid) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">P</span>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-foreground font-bold text-base sm:text-lg">P</span>
             </div>
-            <span className="font-semibold text-lg hidden sm:inline" data-testid="text-logo">
+            <span className="font-semibold text-base sm:text-lg hidden xs:inline" data-testid="text-logo">
               PBTC Pay
             </span>
           </div>
@@ -129,59 +133,129 @@ if (paid) {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
+            <Button
+              size="icon"
+              variant="ghost"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              data-testid="button-mobile-menu"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
             {connected ? (
-              <Button variant="outline" onClick={disconnect} data-testid="button-disconnect">
-                <Wallet className="w-4 h-4 mr-2" />
-                {truncateAddress(publicKey || "", 4)}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={disconnect} 
+                className="hidden sm:flex"
+                data-testid="button-disconnect"
+              >
+                <Wallet className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{truncateAddress(publicKey || "", 4)}</span>
+                <span className="sm:hidden">Wallet</span>
               </Button>
             ) : (
-              <Button onClick={connect} disabled={connecting} data-testid="button-connect">
-                <Wallet className="w-4 h-4 mr-2" />
-                {connecting ? "Connecting..." : "Connect Wallet"}
+              <Button 
+                onClick={connect} 
+                disabled={connecting} 
+                size="sm"
+                className="text-xs sm:text-sm"
+                data-testid="button-connect"
+              >
+                <Wallet className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{connecting ? "Connecting..." : "Connect Wallet"}</span>
+                <span className="sm:hidden">{connecting ? "..." : "Connect"}</span>
               </Button>
             )}
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t px-4 py-3 space-y-2 bg-background">
+            <button
+              onClick={scrollToDemo}
+              className="block w-full text-left py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Demo
+            </button>
+            <button
+              onClick={scrollToDocs}
+              className="block w-full text-left py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Docs
+            </button>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-left py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              GitHub
+            </a>
+            {connected && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={disconnect} 
+                className="w-full sm:hidden"
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                {truncateAddress(publicKey || "", 4)}
+              </Button>
+            )}
+          </div>
+        )}
       </header>
 
-      <section className="relative py-20 md:py-32 overflow-hidden">
+      <section className="relative py-12 sm:py-16 md:py-24 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 animate-gradient" />
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-60 sm:w-80 h-60 sm:h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-60 sm:w-80 h-60 sm:h-80 bg-primary/5 rounded-full blur-3xl" />
         
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <Badge variant="secondary" className="mb-4" data-testid="badge-hero">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6">
+            <Badge variant="secondary" className="mb-2 sm:mb-4" data-testid="badge-hero">
               <SiSolana className="w-3 h-3 mr-1" />
               Powered by Solana
             </Badge>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight" data-testid="text-hero-title">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight" data-testid="text-hero-title">
               Accept{" "}
               <span className="text-primary">Purple Bitcoin</span>{" "}
               Payments in Minutes
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-2" data-testid="text-hero-subtitle">
               Non-custodial payment solution for PBTC. Easy integration, instant settlement, 
               no KYC required. Just drop in our component and start accepting payments.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button size="lg" onClick={scrollToDemo} className="gap-2" data-testid="button-try-demo">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 sm:pt-4">
+              <Button 
+                size="default"
+                onClick={scrollToDemo} 
+                className="w-full sm:w-auto gap-2" 
+                data-testid="button-try-demo"
+              >
                 Try Live Demo
                 <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button size="lg" variant="outline" onClick={scrollToDocs} data-testid="button-view-docs">
+              <Button 
+                size="default"
+                variant="outline" 
+                onClick={scrollToDocs}
+                className="w-full sm:w-auto"
+                data-testid="button-view-docs"
+              >
                 View Documentation
               </Button>
             </div>
 
             <button
               onClick={scrollToDemo}
-              className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-12 animate-bounce"
+              className="hidden sm:flex items-center justify-center gap-1 text-sm text-muted-foreground mt-8 md:mt-12 animate-bounce mx-auto"
               data-testid="button-scroll-down"
             >
               <ChevronDown className="w-5 h-5" />
@@ -190,27 +264,27 @@ if (paid) {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 border-t">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4" data-testid="text-features-title">
+      <section className="py-12 sm:py-16 md:py-24 border-t">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4" data-testid="text-features-title">
               Why Choose PBTC Pay?
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
               Built for developers who want to accept PBTC without the complexity
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <Card className="hover-elevate" data-testid="card-feature-1">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <Shield className="w-6 h-6 text-primary" />
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <CardTitle className="text-lg">Non-Custodial</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Non-Custodial</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   Users pay directly from their wallet to yours. We never hold funds.
                   No custody, no legal complexity.
                 </p>
@@ -218,29 +292,29 @@ if (paid) {
             </Card>
 
             <Card className="hover-elevate" data-testid="card-feature-2">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <Zap className="w-6 h-6 text-primary" />
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
+                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <CardTitle className="text-lg">Instant Settlement</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Instant Settlement</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   Solana-speed transactions. Funds arrive in your wallet within seconds.
                   No waiting, no chargebacks.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-3">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <Code className="w-6 h-6 text-primary" />
+            <Card className="hover-elevate sm:col-span-2 lg:col-span-1" data-testid="card-feature-3">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
+                  <Code className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <CardTitle className="text-lg">Developer First</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Developer First</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   Drop-in React component. Copy-paste integration. Full TypeScript support.
                   Get started in 5 minutes.
                 </p>
@@ -250,26 +324,26 @@ if (paid) {
         </div>
       </section>
 
-      <section id="demo" className="py-16 md:py-24 bg-muted/30 border-t">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">Interactive</Badge>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4" data-testid="text-demo-title">
+      <section id="demo" className="py-12 sm:py-16 md:py-24 bg-muted/30 border-t">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <Badge variant="secondary" className="mb-3 sm:mb-4">Interactive</Badge>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4" data-testid="text-demo-title">
               Live Demo
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
               Try the payment flow yourself. Connect your wallet and experience the seamless checkout.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
             <Card data-testid="card-demo-config">
-              <CardHeader>
-                <CardTitle className="text-lg">Configure Payment</CardTitle>
+              <CardHeader className="pb-2 sm:pb-4">
+                <CardTitle className="text-base sm:text-lg">Configure Payment</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="demo-amount">Amount ({PBTC_CONFIG.symbol})</Label>
+                  <Label htmlFor="demo-amount" className="text-sm">Amount ({PBTC_CONFIG.symbol})</Label>
                   <Input
                     id="demo-amount"
                     type="number"
@@ -282,7 +356,7 @@ if (paid) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="demo-reference">Reference ID</Label>
+                  <Label htmlFor="demo-reference" className="text-sm">Reference ID</Label>
                   <Input
                     id="demo-reference"
                     value={demoReference}
@@ -292,14 +366,14 @@ if (paid) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Merchant Wallet</Label>
-                  <div className="p-3 rounded-lg bg-muted/50 font-mono text-sm truncate">
-                    {truncateAddress(DEMO_MERCHANT_WALLET, 12)}
+                  <Label className="text-sm">Merchant Wallet</Label>
+                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 font-mono text-xs sm:text-sm truncate">
+                    {truncateAddress(DEMO_MERCHANT_WALLET, 8)}
                   </div>
                 </div>
 
                 <Button
-                  className="w-full h-12"
+                  className="w-full"
                   onClick={() => setCheckoutOpen(true)}
                   disabled={!demoAmount || parseFloat(demoAmount) <= 0}
                   data-testid="button-open-demo-checkout"
@@ -308,9 +382,9 @@ if (paid) {
                   Open Checkout ({demoAmount} {PBTC_CONFIG.symbol})
                 </Button>
 
-                <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Component Code</span>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs sm:text-sm font-medium">Component Code</span>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -331,17 +405,17 @@ if (paid) {
               </CardContent>
             </Card>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {recentTransaction ? (
                 <TransactionStatus transaction={recentTransaction} />
               ) : (
-                <Card className="h-full flex items-center justify-center" data-testid="card-demo-placeholder">
-                  <CardContent className="text-center py-16">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <Wallet className="w-8 h-8 text-muted-foreground" />
+                <Card className="flex items-center justify-center min-h-[200px] sm:min-h-[250px]" data-testid="card-demo-placeholder">
+                  <CardContent className="text-center py-8 sm:py-16">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                      <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                     </div>
-                    <h3 className="font-medium mb-2">No Recent Transactions</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    <h3 className="font-medium text-sm sm:text-base mb-1 sm:mb-2">No Recent Transactions</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground max-w-xs mx-auto">
                       Complete a payment to see the transaction details appear here
                     </p>
                   </CardContent>
@@ -349,40 +423,40 @@ if (paid) {
               )}
 
               <Card data-testid="card-how-it-works">
-                <CardHeader>
-                  <CardTitle className="text-lg">How It Works</CardTitle>
+                <CardHeader className="pb-2 sm:pb-4">
+                  <CardTitle className="text-base sm:text-lg">How It Works</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ol className="space-y-3">
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                  <ol className="space-y-2 sm:space-y-3">
+                    <li className="flex gap-2 sm:gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium flex items-center justify-center">
                         1
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         User opens checkout and connects their Phantom/Solflare wallet
                       </span>
                     </li>
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                    <li className="flex gap-2 sm:gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium flex items-center justify-center">
                         2
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         SPL token transfer is created and signed by user
                       </span>
                     </li>
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                    <li className="flex gap-2 sm:gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium flex items-center justify-center">
                         3
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         Transaction is confirmed on Solana blockchain
                       </span>
                     </li>
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                    <li className="flex gap-2 sm:gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium flex items-center justify-center">
                         4
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         Your backend verifies payment and unlocks content/order
                       </span>
                     </li>
@@ -394,35 +468,36 @@ if (paid) {
         </div>
       </section>
 
-      <section id="docs" className="py-16 md:py-24 border-t">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">Documentation</Badge>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4" data-testid="text-docs-title">
+      <section id="docs" className="py-12 sm:py-16 md:py-24 border-t">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <Badge variant="secondary" className="mb-3 sm:mb-4">Documentation</Badge>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4" data-testid="text-docs-title">
               Quick Start Guide
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
               Get up and running with PBTC payments in just a few steps
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
             <Card data-testid="card-docs-step-1">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground font-medium flex items-center justify-center">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     1
                   </span>
-                  <CardTitle className="text-lg">Install the Package</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Install the Package</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
-                  <code className="font-mono text-sm">npm install @pbtc/payments</code>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
+                  <code className="font-mono text-xs sm:text-sm truncate">npm install @pbtc/payments</code>
                   <Button
                     size="icon"
                     variant="ghost"
                     onClick={() => copyCode("npm install @pbtc/payments", "Install")}
+                    className="flex-shrink-0"
                     data-testid="button-copy-install"
                   >
                     {copied === "Install" ? (
@@ -436,22 +511,23 @@ if (paid) {
             </Card>
 
             <Card data-testid="card-docs-step-2">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground font-medium flex items-center justify-center">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     2
                   </span>
-                  <CardTitle className="text-lg">Add the Checkout Component</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Add the Checkout Component</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-                  <div className="flex items-center justify-between">
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground font-mono">React Component</span>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => copyCode(componentCode, "React")}
+                      className="flex-shrink-0"
                       data-testid="button-copy-react"
                     >
                       {copied === "React" ? (
@@ -461,7 +537,7 @@ if (paid) {
                       )}
                     </Button>
                   </div>
-                  <pre className="text-sm font-mono overflow-x-auto whitespace-pre-wrap text-muted-foreground">
+                  <pre className="text-xs sm:text-sm font-mono overflow-x-auto whitespace-pre-wrap text-muted-foreground">
                     {componentCode}
                   </pre>
                 </div>
@@ -469,22 +545,23 @@ if (paid) {
             </Card>
 
             <Card data-testid="card-docs-step-3">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground font-medium flex items-center justify-center">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     3
                   </span>
-                  <CardTitle className="text-lg">Verify Payments (Backend)</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Verify Payments (Backend)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-                  <div className="flex items-center justify-between">
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground font-mono">Node.js Backend</span>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => copyCode(verifyCode, "Backend")}
+                      className="flex-shrink-0"
                       data-testid="button-copy-backend"
                     >
                       {copied === "Backend" ? (
@@ -494,15 +571,15 @@ if (paid) {
                       )}
                     </Button>
                   </div>
-                  <pre className="text-sm font-mono overflow-x-auto whitespace-pre-wrap text-muted-foreground">
+                  <pre className="text-xs sm:text-sm font-mono overflow-x-auto whitespace-pre-wrap text-muted-foreground">
                     {verifyCode}
                   </pre>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="text-center pt-4">
-              <Button variant="outline" className="gap-2" data-testid="button-full-docs">
+            <div className="text-center pt-2 sm:pt-4">
+              <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="button-full-docs">
                 <ExternalLink className="w-4 h-4" />
                 View Full Documentation
               </Button>
@@ -511,21 +588,21 @@ if (paid) {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-muted/30 border-t">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-2xl md:text-3xl font-bold" data-testid="text-cta-title">
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30 border-t">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold" data-testid="text-cta-title">
               Ready to Accept PBTC?
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-2">
               Join the growing ecosystem of merchants accepting Purple Bitcoin payments
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-              <Button size="lg" className="gap-2" data-testid="button-get-started">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Button className="w-full sm:w-auto gap-2" data-testid="button-get-started">
                 Get Started
                 <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button size="lg" variant="outline" className="gap-2" data-testid="button-github-cta">
+              <Button variant="outline" className="w-full sm:w-auto gap-2" data-testid="button-github-cta">
                 <SiGithub className="w-4 h-4" />
                 Star on GitHub
               </Button>
@@ -534,26 +611,31 @@ if (paid) {
         </div>
       </section>
 
-      <footer className="py-8 border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold">P</span>
+      <footer className="py-6 sm:py-8 border-t">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm sm:text-base">P</span>
               </div>
-              <span className="text-sm text-muted-foreground">
-                PBTC Pay - Non-custodial payments for Purple Bitcoin
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                PBTC Pay - Non-custodial payments
               </span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-footer-docs">
-                Documentation
+            <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+              <a href="#" className="hover:text-foreground transition-colors">
+                Terms
               </a>
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-footer-github">
+              <a href="#" className="hover:text-foreground transition-colors">
+                Privacy
+              </a>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
                 GitHub
-              </a>
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-footer-twitter">
-                Twitter
               </a>
             </div>
           </div>
@@ -561,13 +643,20 @@ if (paid) {
       </footer>
 
       <PBTCCheckout
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
         amount={parseFloat(demoAmount) || 0}
         merchantWallet={DEMO_MERCHANT_WALLET}
         reference={demoReference}
-        memo={`PBTC Payment - ${demoReference}`}
+        memo={`PBTC Demo Payment - ${demoReference}`}
         onSuccess={handlePaymentSuccess}
-        open={checkoutOpen}
-        onOpenChange={setCheckoutOpen}
+        onError={(error) => {
+          toast({
+            title: "Payment Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }}
       />
     </div>
   );
