@@ -4,12 +4,16 @@ A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native S
 
 ## Overview
 
-This application provides a drop-in payment component for accepting PBTC or SOL payments. Key features:
+This is a React application providing a payment checkout for PBTC or SOL payments. 
+
+**Quick Start:** Run `npm install` then `npm run dev`
+
+Key features:
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
 - **Dual currency**: Accept both PBTC (SPL token) and native SOL
-- **Developer-friendly**: React component with simple props
-- **Verification backend**: API endpoints to verify payments on-chain
-- **No KYC required**: Permissionless, composable payments
+- **Mobile responsive**: Works on all devices
+- **On-chain verification**: Backend API to verify payments
+- **No KYC required**: Permissionless payments
 
 ## Project Architecture
 
@@ -27,7 +31,7 @@ This application provides a drop-in payment component for accepting PBTC or SOL 
 ### Key Files
 - `client/src/components/pbtc-checkout.tsx` - Main checkout modal component
 - `client/src/components/transaction-status.tsx` - Transaction status display
-- `client/src/pages/landing.tsx` - Demo landing page with documentation
+- `client/src/pages/landing.tsx` - Demo landing page
 - `client/src/lib/wallet-context.tsx` - Phantom wallet integration
 - `server/routes.ts` - Payment API endpoints
 - `shared/schema.ts` - Data types and PBTC configuration
