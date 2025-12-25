@@ -73,7 +73,9 @@ export default function Landing() {
     setMobileMenuOpen(false);
   };
 
-  const componentCode = `<PBTCCheckout
+  const componentCode = `import { PBTCCheckout } from "@/components/pbtc-checkout";
+
+<PBTCCheckout
   amount={${demoAmount}}
   merchantWallet="${truncateAddress(DEMO_MERCHANT_WALLET, 8)}"
   reference="${demoReference}"
@@ -488,20 +490,36 @@ if (paid) {
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     1
                   </span>
-                  <CardTitle className="text-base sm:text-lg">Install the Package</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Clone the Repository</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-2">
                 <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
-                  <code className="font-mono text-xs sm:text-sm truncate">npm install @pbtc/payments</code>
+                  <code className="font-mono text-xs sm:text-sm truncate">git clone {GITHUB_URL}</code>
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={() => copyCode("npm install @pbtc/payments", "Install")}
+                    onClick={() => copyCode(`git clone ${GITHUB_URL}`, "Clone")}
                     className="flex-shrink-0"
-                    data-testid="button-copy-install"
+                    data-testid="button-copy-clone"
                   >
-                    {copied === "Install" ? (
+                    {copied === "Clone" ? (
+                      <Check className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
+                  <code className="font-mono text-xs sm:text-sm truncate">npm install && npm run dev</code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => copyCode("npm install && npm run dev", "Run")}
+                    className="flex-shrink-0"
+                    data-testid="button-copy-run"
+                  >
+                    {copied === "Run" ? (
                       <Check className="w-3 h-3 text-green-500" />
                     ) : (
                       <Copy className="w-3 h-3" />
