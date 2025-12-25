@@ -653,20 +653,16 @@ if (paid) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold" data-testid="text-cta-title">
-              Ready to Accept PBTC?
+              Ready to Accept PBTC, SOL & More?
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground px-2">
-              Join the growing ecosystem of merchants accepting Purple Bitcoin payments
+              Join the growing ecosystem of merchants accepting Solana token payments
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <Button className="w-full sm:w-auto gap-2" data-testid="button-get-started">
-                Get Started
-                <ArrowRight className="w-4 h-4" />
-              </Button>
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="w-full sm:w-auto gap-2" data-testid="button-github-cta">
-                  <SiGithub className="w-4 h-4" />
-                  Star on GitHub
+                <Button className="w-full sm:w-auto gap-2" data-testid="button-get-started">
+                  Get Started
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               </a>
             </div>
