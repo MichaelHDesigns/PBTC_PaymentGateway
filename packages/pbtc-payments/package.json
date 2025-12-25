@@ -1,6 +1,6 @@
 {
-  "name": "@pbtc/payments",
-  "version": "1.0.0",
+  "name": "pbtc-payment-gateway",
+  "version": "1.0.1",
   "description": "Non-custodial payment gateway for PBTC and SOL on Solana",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
