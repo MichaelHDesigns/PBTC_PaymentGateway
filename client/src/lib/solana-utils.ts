@@ -3,6 +3,7 @@ import {
   getAssociatedTokenAddress, 
   createTransferInstruction,
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAccount,
   createAssociatedTokenAccountInstruction,
   getMint
@@ -35,7 +36,7 @@ async function getRpcUrl(): Promise<string> {
       const config = await response.json();
       if (config.rpcUrl) {
         cachedRpcUrl = config.rpcUrl;
-        return cachedRpcUrl;
+        return config.rpcUrl;
       }
     }
   } catch (error) {
@@ -66,6 +67,13 @@ export function getTokenMint(token: TokenConfig): PublicKey | null {
   return new PublicKey(token.mintAddress);
 }
 
+export function getTokenProgramId(token: TokenConfig): PublicKey {
+  if (token.tokenProgram === "token-2022") {
+    return TOKEN_2022_PROGRAM_ID;
+  }
+  return TOKEN_PROGRAM_ID;
+}
+
 export async function getTokenBalance(
   connection: Connection,
   ownerAddress: string,
@@ -82,19 +90,20 @@ export async function getTokenBalance(
     if (!token.mintAddress) return 0;
     
     const mint = new PublicKey(token.mintAddress);
-    const ata = await getAssociatedTokenAddress(mint, owner);
+    const programId = getTokenProgramId(token);
+    const ata = await getAssociatedTokenAddress(mint, owner, false, programId);
     
     // Fetch actual decimals from the blockchain to ensure accuracy
     let decimals = token.decimals;
     try {
-      const mintInfo = await getMint(connection, mint);
+      const mintInfo = await getMint(connection, mint, undefined, programId);
       decimals = mintInfo.decimals;
-      console.log(`Token ${token.symbol}: blockchain decimals = ${decimals}, config decimals = ${token.decimals}`);
+      console.log(`Token ${token.symbol}: blockchain decimals = ${decimals}, config decimals = ${token.decimals}, program: ${token.tokenProgram}`);
     } catch (mintError) {
       console.warn(`Could not fetch mint info for ${token.symbol}, using config decimals:`, mintError);
     }
     
-    const account = await getAccount(connection, ata);
+    const account = await getAccount(connection, ata, undefined, programId);
     const balance = Number(account.amount) / Math.pow(10, decimals);
     console.log(`Token ${token.symbol} balance: ${balance} (raw: ${account.amount}, decimals: ${decimals})`);
     return balance;
@@ -124,31 +133,33 @@ export async function createSPLTransfer(
   const sender = new PublicKey(senderAddress);
   const recipient = new PublicKey(recipientAddress);
   const mint = new PublicKey(token.mintAddress);
+  const programId = getTokenProgramId(token);
   
   // Fetch actual decimals from blockchain
   let decimals = token.decimals;
   try {
-    const mintInfo = await getMint(connection, mint);
+    const mintInfo = await getMint(connection, mint, undefined, programId);
     decimals = mintInfo.decimals;
-    console.log(`Transfer: using blockchain decimals ${decimals} for ${token.symbol}`);
+    console.log(`Transfer: using blockchain decimals ${decimals} for ${token.symbol}, program: ${token.tokenProgram}`);
   } catch (mintError) {
     console.warn(`Could not fetch mint info for ${token.symbol}, using config decimals:`, mintError);
   }
   
-  const senderATA = await getAssociatedTokenAddress(mint, sender);
-  const recipientATA = await getAssociatedTokenAddress(mint, recipient);
+  const senderATA = await getAssociatedTokenAddress(mint, sender, false, programId);
+  const recipientATA = await getAssociatedTokenAddress(mint, recipient, false, programId);
   
   const transaction = new Transaction();
   
   try {
-    await getAccount(connection, recipientATA);
+    await getAccount(connection, recipientATA, undefined, programId);
   } catch {
     transaction.add(
       createAssociatedTokenAccountInstruction(
         sender,
         recipientATA,
         recipient,
-        mint
+        mint,
+        programId
       )
     );
   }
@@ -163,7 +174,7 @@ export async function createSPLTransfer(
       sender,
       amountInBaseUnits,
       [],
-      TOKEN_PROGRAM_ID
+      programId
     )
   );
   
@@ -188,7 +199,8 @@ export async function createPBTCTransfer(
     decimals: PBTC_CONFIG.decimals,
     type: "spl",
     mintAddress: PBTC_CONFIG.mint,
-    icon: "pbtc"
+    icon: "pbtc",
+    tokenProgram: "spl-token"
   };
   return createSPLTransfer(connection, senderAddress, recipientAddress, amount, pbtcToken);
 }
@@ -271,7 +283,8 @@ export async function sendPBTCPayment(
     decimals: PBTC_CONFIG.decimals,
     type: "spl",
     mintAddress: PBTC_CONFIG.mint,
-    icon: "pbtc"
+    icon: "pbtc",
+    tokenProgram: "spl-token"
   };
   return sendSPLPayment(recipientAddress, amount, pbtcToken);
 }

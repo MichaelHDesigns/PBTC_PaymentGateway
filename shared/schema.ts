@@ -29,6 +29,7 @@ export interface TokenConfig {
   type: "native" | "spl";
   mintAddress: string | null;
   icon: string;
+  tokenProgram: "spl-token" | "token-2022" | null;
 }
 
 // Export tokens from config
