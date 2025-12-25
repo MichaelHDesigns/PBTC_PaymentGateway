@@ -4,8 +4,8 @@ import { Buffer } from "buffer";
 import { PBTC_CONFIG } from "../config";
 import type { TransferResult } from "../types";
 
-if (typeof window !== "undefined" && !window.Buffer) {
-  window.Buffer = Buffer;
+if (typeof window !== "undefined" && !(window as unknown as { Buffer?: typeof Buffer }).Buffer) {
+  (window as unknown as { Buffer: typeof Buffer }).Buffer = Buffer;
 }
 
 let connectionInstance: Connection | null = null;
