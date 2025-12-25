@@ -17,12 +17,14 @@ A non-custodial payment gateway for Solana SPL tokens including PBTC, USDC, USDT
 
 ## Supported Tokens
 
-| Token | Symbol | Type | Decimals |
-|-------|--------|------|----------|
-| Solana | SOL | Native | 9 |
-| Purple Bitcoin | PBTC | SPL | 9 |
-| USD Coin | USDC | SPL | 6 |
-| Tether USD | USDT | SPL | 6 |
+| Token | Symbol | Type | Mint Address |
+|-------|--------|------|--------------|
+| Solana | SOL | Native | - |
+| Purple Bitcoin | PBTC | SPL | `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p` |
+| USD Coin | USDC | SPL | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| Army Gang | ARMY | SPL | `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump` |
+| Bullish Degen | BULLISH | SPL | `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump` |
+| Silver Coin | SILVER | SPL | `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump` |
 
 Tokens are configured in `shared/tokens.json`. Add or remove tokens by editing this file.
 

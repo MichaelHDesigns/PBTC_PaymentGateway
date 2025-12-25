@@ -18,19 +18,31 @@ interface CheckoutModalProps extends PBTCCheckoutProps {
 }
 
 function TokenIcon({ token, className = "w-4 h-4" }: { token: TokenConfig; className?: string }) {
+  const isLarge = className.includes("w-5");
+  const textSize = isLarge ? "text-lg" : "text-sm";
+  
   if (token.id === "sol") {
     return <SiSolana className={className} />;
   }
   if (token.id === "pbtc") {
-    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"}`}>P</span>;
+    return <span className={`font-bold ${textSize}`}>P</span>;
   }
   if (token.id === "usdc") {
-    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"} text-blue-500`}>$</span>;
+    return <span className={`font-bold ${textSize} text-blue-500`}>$</span>;
   }
   if (token.id === "usdt") {
-    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"} text-green-500`}>$</span>;
+    return <span className={`font-bold ${textSize} text-green-500`}>$</span>;
   }
-  return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"}`}>{token.symbol[0]}</span>;
+  if (token.id === "army") {
+    return <span className={`font-bold ${textSize} text-red-500`}>A</span>;
+  }
+  if (token.id === "bullish") {
+    return <span className={`font-bold ${textSize} text-orange-500`}>B</span>;
+  }
+  if (token.id === "silver") {
+    return <span className={`font-bold ${textSize} text-gray-400`}>S</span>;
+  }
+  return <span className={`font-bold ${textSize}`}>{token.symbol[0]}</span>;
 }
 
 export function PBTCCheckout({

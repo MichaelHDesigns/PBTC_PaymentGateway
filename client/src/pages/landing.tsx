@@ -691,9 +691,11 @@ if (paid) {
           sol: solAmount,
           pbtc: parseFloat(demoAmount) || 0,
           usdc: parseFloat(demoAmount) || 0,
-          usdt: parseFloat(demoAmount) || 0,
+          army: parseFloat(demoAmount) || 0,
+          bullish: parseFloat(demoAmount) || 0,
+          silver: parseFloat(demoAmount) || 0,
         }}
-        enabledTokens={["sol", "pbtc", "usdc", "usdt"]}
+        enabledTokens={["sol", "pbtc", "usdc", "army", "bullish", "silver"]}
       />
     </div>
   );

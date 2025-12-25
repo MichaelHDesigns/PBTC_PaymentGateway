@@ -21,7 +21,9 @@ Configured in `shared/tokens.json`:
 - SOL (native Solana)
 - PBTC (Purple Bitcoin) - Mint: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
 - USDC - Mint: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
-- USDT - Mint: `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`
+- ARMY (Army Gang) - Mint: `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump`
+- BULLISH (Bullish Degen) - Mint: `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump`
+- SILVER (Silver Coin) - Mint: `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump`
 
 ## Project Architecture
 
