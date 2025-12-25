@@ -4,7 +4,9 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
 });
@@ -19,7 +21,9 @@ export type User = typeof users.$inferSelect;
 
 // PBTC Payment Types
 export const paymentRequests = pgTable("payment_requests", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   merchantWallet: text("merchant_wallet").notNull(),
   amount: real("amount").notNull(),
   reference: text("reference").notNull().unique(),
@@ -30,7 +34,9 @@ export const paymentRequests = pgTable("payment_requests", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertPaymentRequestSchema = createInsertSchema(paymentRequests).omit({
+export const insertPaymentRequestSchema = createInsertSchema(
+  paymentRequests,
+).omit({
   id: true,
   createdAt: true,
   signature: true,
@@ -78,7 +84,11 @@ export interface PBTCCheckoutProps {
 }
 
 // Transaction status types
-export type TransactionStatus = "pending" | "processing" | "confirmed" | "failed";
+export type TransactionStatus =
+  | "pending"
+  | "processing"
+  | "confirmed"
+  | "failed";
 
 export interface TransactionDetails {
   signature: string;
@@ -92,7 +102,7 @@ export interface TransactionDetails {
 
 // PBTC Token Configuration
 export const PBTC_CONFIG = {
-  mint: "PBTCz8mujDAFSiSSoVF1c2hc2YfgSBc4zVNHqeEZzzy", // Purple Bitcoin mint address (placeholder)
+  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p", // Purple Bitcoin mint address (placeholder)
   decimals: 9,
   symbol: "PBTC",
   name: "Purple Bitcoin",

@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { SiGithub, SiSolana } from "react-icons/si";
 
-const DEMO_MERCHANT_WALLET = "3Kxv7gPL4XzwXeyLdR9TdvgY9zT8J5FvWYpGLVn23A5K";
+const DEMO_MERCHANT_WALLET = "EhPSjrUBDRfhFVzo5khir78mbuHu76rdVTonJdAKG7CD";
 
 export default function Landing() {
   const { connected, connecting, publicKey, connect, disconnect } = useWallet();
