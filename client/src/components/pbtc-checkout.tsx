@@ -3,15 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useWallet, truncateAddress } from "@/lib/wallet-context";
-import { sendPBTCPayment } from "@/lib/solana-utils";
+import { sendPBTCPayment, sendSOLPayment } from "@/lib/solana-utils";
 import { useToast } from "@/hooks/use-toast";
-import { PBTC_CONFIG, type PBTCCheckoutProps, type TransactionStatus } from "@shared/schema";
+import { PBTC_CONFIG, type PBTCCheckoutProps, type TransactionStatus, type PaymentType } from "@shared/schema";
 import { Wallet, Copy, Check, ExternalLink, Shield, Loader2, AlertCircle, X } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { SiSolana } from "react-icons/si";
 
 interface CheckoutModalProps extends PBTCCheckoutProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  solAmount?: number;
 }
 
 export function PBTCCheckout({
@@ -24,6 +26,7 @@ export function PBTCCheckout({
   onCancel,
   open,
   onOpenChange,
+  solAmount,
 }: CheckoutModalProps) {
   const { connected, connecting, publicKey, connect, isPhantomInstalled } = useWallet();
   const { toast } = useToast();
@@ -32,6 +35,10 @@ export function PBTCCheckout({
   const [copied, setCopied] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [paymentType, setPaymentType] = useState<PaymentType>("PBTC");
+
+  const currentAmount = paymentType === "SOL" && solAmount ? solAmount : amount;
+  const currentSymbol = paymentType === "SOL" ? "SOL" : PBTC_CONFIG.symbol;
 
   const copyToClipboard = useCallback(async (text: string, label: string) => {
     try {
@@ -64,10 +71,11 @@ export function PBTCCheckout({
     try {
       const createResponse = await apiRequest("POST", "/api/payments/create", {
         merchantWallet,
-        amount,
+        amount: currentAmount,
         reference,
-        memo: memo || `PBTC Payment - ${reference}`,
+        memo: memo || `${paymentType} Payment - ${reference}`,
         payerWallet: publicKey,
+        paymentType,
       });
 
       if (!createResponse.ok) {
@@ -75,7 +83,9 @@ export function PBTCCheckout({
         throw new Error(errorData.error || "Failed to create payment request");
       }
 
-      const paymentResult = await sendPBTCPayment(merchantWallet, amount, memo);
+      const paymentResult = paymentType === "SOL" 
+        ? await sendSOLPayment(merchantWallet, currentAmount)
+        : await sendPBTCPayment(merchantWallet, currentAmount, memo);
 
       if (!paymentResult.success || !paymentResult.signature) {
         throw new Error(paymentResult.error || "Transaction failed");
@@ -85,6 +95,7 @@ export function PBTCCheckout({
         reference,
         signature: paymentResult.signature,
         senderWallet: publicKey,
+        paymentType,
       });
 
       if (!confirmResponse.ok) {
@@ -99,7 +110,7 @@ export function PBTCCheckout({
 
       toast({
         title: "Payment Successful!",
-        description: `${amount} ${PBTC_CONFIG.symbol} sent to merchant`,
+        description: `${currentAmount} ${currentSymbol} sent to merchant`,
       });
 
       onSuccess?.(paymentResult.signature);
@@ -118,7 +129,7 @@ export function PBTCCheckout({
     } finally {
       setProcessing(false);
     }
-  }, [connected, publicKey, connect, merchantWallet, amount, reference, memo, toast, onSuccess, onError]);
+  }, [connected, publicKey, connect, merchantWallet, currentAmount, currentSymbol, reference, memo, toast, onSuccess, onError, paymentType]);
 
   const handleCancel = useCallback(() => {
     setStatus("pending");
@@ -168,11 +179,38 @@ export function PBTCCheckout({
         </div>
 
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          {solAmount && status === "pending" && (
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant={paymentType === "PBTC" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPaymentType("PBTC")}
+                className="flex-1 max-w-32"
+                data-testid="button-select-pbtc"
+              >
+                <span className="font-bold mr-1">P</span>
+                PBTC
+              </Button>
+              <Button
+                variant={paymentType === "SOL" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPaymentType("SOL")}
+                className="flex-1 max-w-32"
+                data-testid="button-select-sol"
+              >
+                <SiSolana className="w-4 h-4 mr-1" />
+                SOL
+              </Button>
+            </div>
+          )}
+
           <div className="text-center py-2 sm:py-4">
             <div className="text-2xl sm:text-4xl font-bold text-foreground" data-testid="text-payment-amount">
-              {amount.toLocaleString()} {PBTC_CONFIG.symbol}
+              {currentAmount.toLocaleString()} {currentSymbol}
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Purple Bitcoin</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              {paymentType === "SOL" ? "Native Solana" : "Purple Bitcoin"}
+            </p>
           </div>
 
           <div className="space-y-3">
@@ -345,7 +383,7 @@ export function PBTCCheckout({
                       <span className="sm:hidden">Connecting...</span>
                     </>
                   ) : connected ? (
-                    `Pay ${amount} ${PBTC_CONFIG.symbol}`
+                    `Pay ${currentAmount} ${currentSymbol}`
                   ) : isPhantomInstalled ? (
                     <>
                       <Wallet className="w-4 h-4 mr-2" />
@@ -393,7 +431,8 @@ export function PBTCCheckoutButton({
   onError,
   onCancel,
   children,
-}: PBTCCheckoutProps & { children?: React.ReactNode }) {
+  solAmount,
+}: PBTCCheckoutProps & { children?: React.ReactNode; solAmount?: number }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -415,6 +454,7 @@ export function PBTCCheckoutButton({
         onCancel={onCancel}
         open={open}
         onOpenChange={setOpen}
+        solAmount={solAmount}
       />
     </>
   );

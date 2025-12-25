@@ -14,7 +14,80 @@ interface VerificationResult {
   senderAddress?: string;
 }
 
-async function verifyTransactionOnChain(
+async function verifySOLTransactionOnChain(
+  signature: string,
+  merchantWallet: string,
+  expectedAmount: number,
+  expectedSender?: string
+): Promise<VerificationResult> {
+  try {
+    const tx = await connection.getTransaction(signature, {
+      maxSupportedTransactionVersion: 0,
+    });
+
+    if (!tx) {
+      return { valid: false, error: "Transaction not found on-chain. It may still be processing." };
+    }
+
+    if (tx.meta?.err) {
+      return { valid: false, error: "Transaction failed on-chain" };
+    }
+
+    const accountKeys = tx.transaction.message.getAccountKeys?.() || 
+                        (tx.transaction.message as { staticAccountKeys?: PublicKey[] }).staticAccountKeys;
+    
+    if (!accountKeys) {
+      return { valid: false, error: "Could not parse transaction accounts" };
+    }
+
+    const merchantIndex = Array.from({ length: accountKeys.length }, (_, i) => {
+      const key = accountKeys.get ? accountKeys.get(i) : accountKeys[i];
+      return key?.toString();
+    }).findIndex(addr => addr === merchantWallet);
+
+    if (merchantIndex === -1) {
+      return { valid: false, error: "Merchant wallet not found in transaction" };
+    }
+
+    const preBalances = tx.meta?.preBalances || [];
+    const postBalances = tx.meta?.postBalances || [];
+
+    const preBalance = preBalances[merchantIndex] || 0;
+    const postBalance = postBalances[merchantIndex] || 0;
+    const receivedLamports = postBalance - preBalance;
+    const receivedAmount = receivedLamports / 1e9;
+
+    if (receivedAmount <= 0) {
+      return { valid: false, error: "No positive SOL transfer to merchant detected" };
+    }
+
+    if (Math.abs(receivedAmount - expectedAmount) > 0.0001) {
+      return { 
+        valid: false, 
+        error: `Amount mismatch: expected ${expectedAmount} SOL, received ${receivedAmount.toFixed(9)} SOL`,
+        receivedAmount 
+      };
+    }
+
+    const firstKey = accountKeys.get ? accountKeys.get(0) : accountKeys[0];
+    const actualSender = firstKey?.toString();
+
+    if (expectedSender && actualSender && actualSender !== expectedSender) {
+      return { 
+        valid: false, 
+        error: `Sender mismatch: payment was locked to wallet ${expectedSender.slice(0, 8)}... but transaction was sent by ${actualSender.slice(0, 8)}...`,
+        senderAddress: actualSender 
+      };
+    }
+
+    return { valid: true, receivedAmount, senderAddress: actualSender };
+  } catch (error) {
+    console.error("SOL on-chain verification error:", error);
+    return { valid: false, error: "Failed to verify SOL transaction on-chain. Please try again." };
+  }
+}
+
+async function verifyPBTCTransactionOnChain(
   signature: string,
   merchantWallet: string,
   expectedAmount: number,
@@ -219,7 +292,7 @@ export async function registerRoutes(
 
   app.post("/api/payments/confirm", async (req, res) => {
     try {
-      const { reference, signature, senderWallet } = req.body;
+      const { reference, signature, senderWallet, paymentType = "PBTC" } = req.body;
       
       if (!reference || !signature) {
         return res.status(400).json({ 
@@ -268,7 +341,8 @@ export async function registerRoutes(
         });
       }
 
-      const verification = await verifyTransactionOnChain(
+      const verifyFn = paymentType === "SOL" ? verifySOLTransactionOnChain : verifyPBTCTransactionOnChain;
+      const verification = await verifyFn(
         signature,
         payment.merchantWallet,
         payment.amount,
@@ -343,7 +417,7 @@ export async function registerRoutes(
       const isPaid = payment.status === "confirmed" && payment.signature;
 
       if (isPaid && payment.signature) {
-        const verification = await verifyTransactionOnChain(
+        const verification = await verifyPBTCTransactionOnChain(
           payment.signature,
           payment.merchantWallet,
           payment.amount,

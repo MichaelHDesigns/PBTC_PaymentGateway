@@ -31,6 +31,7 @@ export default function Landing() {
   const { toast } = useToast();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [demoAmount, setDemoAmount] = useState("25");
+  const [solAmount] = useState(0.01);
   const [demoReference, setDemoReference] = useState(`ORDER_${Date.now().toString(36).toUpperCase()}`);
   const [recentTransaction, setRecentTransaction] = useState<TransactionDetails | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -648,7 +649,7 @@ if (paid) {
         amount={parseFloat(demoAmount) || 0}
         merchantWallet={DEMO_MERCHANT_WALLET}
         reference={demoReference}
-        memo={`PBTC Demo Payment - ${demoReference}`}
+        memo={`Demo Payment - ${demoReference}`}
         onSuccess={handlePaymentSuccess}
         onError={(error) => {
           toast({
@@ -657,6 +658,7 @@ if (paid) {
             variant: "destructive",
           });
         }}
+        solAmount={solAmount}
       />
     </div>
   );
