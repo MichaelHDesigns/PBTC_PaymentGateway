@@ -461,7 +461,7 @@ if (paid) {
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     2
                   </span>
-                  <CardTitle className="text-base sm:text-lg">Install and Run</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Install and Run (Development)</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -470,11 +470,40 @@ if (paid) {
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={() => copyCode("npm install && npm run dev", "Install")}
+                    onClick={() => copyCode("npm install && npm run dev", "Install Dev")}
                     className="flex-shrink-0"
-                    data-testid="button-copy-install"
+                    data-testid="button-copy-install-dev"
                   >
-                    {copied === "Install" ? (
+                    {copied === "Install Dev" ? (
+                      <Check className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-docs-step-2b">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
+                    3
+                  </span>
+                  <CardTitle className="text-base sm:text-lg">Install and Run (Production)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
+                  <code className="font-mono text-xs sm:text-sm truncate">npm install && npm run build && npm start</code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => copyCode("npm install && npm run build && npm start", "Install Prod")}
+                    className="flex-shrink-0"
+                    data-testid="button-copy-install-prod"
+                  >
+                    {copied === "Install Prod" ? (
                       <Check className="w-3 h-3 text-green-500" />
                     ) : (
                       <Copy className="w-3 h-3" />
