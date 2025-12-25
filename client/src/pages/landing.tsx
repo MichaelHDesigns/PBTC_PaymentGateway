@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PBTCCheckout } from "@/components/pbtc-checkout";
 import { TransactionStatus } from "@/components/transaction-status";
-import { PBTC_CONFIG, type TransactionDetails } from "@shared/schema";
+import { PBTC_CONFIG, SUPPORTED_TOKENS, type TransactionDetails } from "@shared/schema";
 import { useWallet, truncateAddress } from "@/lib/wallet-context";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -320,7 +320,7 @@ if (paid) {
                   data-testid="button-open-demo-checkout"
                 >
                   <Wallet className="w-4 h-4 mr-2" />
-                  Pay with PBTC or SOL
+                  Pay with Crypto
                 </Button>
 
                 <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-2">
@@ -687,7 +687,13 @@ if (paid) {
             variant: "destructive",
           });
         }}
-        solAmount={solAmount}
+        tokenAmounts={{
+          sol: solAmount,
+          pbtc: parseFloat(demoAmount) || 0,
+          usdc: parseFloat(demoAmount) || 0,
+          usdt: parseFloat(demoAmount) || 0,
+        }}
+        enabledTokens={["sol", "pbtc", "usdc", "usdt"]}
       />
     </div>
   );

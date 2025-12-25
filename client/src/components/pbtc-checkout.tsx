@@ -1,12 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useWallet, truncateAddress } from "@/lib/wallet-context";
-import { sendPBTCPayment, sendSOLPayment } from "@/lib/solana-utils";
+import { sendTokenPayment } from "@/lib/solana-utils";
 import { useToast } from "@/hooks/use-toast";
-import { PBTC_CONFIG, type PBTCCheckoutProps, type TransactionStatus, type PaymentType } from "@shared/schema";
-import { Wallet, Copy, Check, ExternalLink, Shield, Loader2, AlertCircle, X } from "lucide-react";
+import { SUPPORTED_TOKENS, type PBTCCheckoutProps, type TransactionStatus, type TokenConfig } from "@shared/schema";
+import { Wallet, Copy, Check, ExternalLink, Shield, Loader2, AlertCircle, X, ChevronDown } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SiSolana } from "react-icons/si";
 
@@ -14,6 +15,22 @@ interface CheckoutModalProps extends PBTCCheckoutProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   solAmount?: number;
+}
+
+function TokenIcon({ token, className = "w-4 h-4" }: { token: TokenConfig; className?: string }) {
+  if (token.id === "sol") {
+    return <SiSolana className={className} />;
+  }
+  if (token.id === "pbtc") {
+    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"}`}>P</span>;
+  }
+  if (token.id === "usdc") {
+    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"} text-blue-500`}>$</span>;
+  }
+  if (token.id === "usdt") {
+    return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"} text-green-500`}>$</span>;
+  }
+  return <span className={`font-bold ${className.includes("w-5") ? "text-lg" : "text-sm"}`}>{token.symbol[0]}</span>;
 }
 
 export function PBTCCheckout({
@@ -27,6 +44,8 @@ export function PBTCCheckout({
   open,
   onOpenChange,
   solAmount,
+  tokenAmounts,
+  enabledTokens,
 }: CheckoutModalProps) {
   const { connected, connecting, publicKey, connect, isPhantomInstalled } = useWallet();
   const { toast } = useToast();
@@ -35,10 +54,34 @@ export function PBTCCheckout({
   const [copied, setCopied] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [paymentType, setPaymentType] = useState<PaymentType>("PBTC");
+  const [selectedTokenId, setSelectedTokenId] = useState<string>("pbtc");
 
-  const currentAmount = paymentType === "SOL" && solAmount ? solAmount : amount;
-  const currentSymbol = paymentType === "SOL" ? "SOL" : PBTC_CONFIG.symbol;
+  const availableTokens = useMemo(() => {
+    if (enabledTokens && enabledTokens.length > 0) {
+      return SUPPORTED_TOKENS.filter(t => enabledTokens.includes(t.id));
+    }
+    if (tokenAmounts) {
+      return SUPPORTED_TOKENS.filter(t => tokenAmounts[t.id] !== undefined);
+    }
+    if (solAmount !== undefined) {
+      return SUPPORTED_TOKENS.filter(t => t.id === "pbtc" || t.id === "sol");
+    }
+    return SUPPORTED_TOKENS.filter(t => t.id === "pbtc");
+  }, [enabledTokens, tokenAmounts, solAmount]);
+
+  const selectedToken = useMemo(() => {
+    return availableTokens.find(t => t.id === selectedTokenId) || availableTokens[0];
+  }, [availableTokens, selectedTokenId]);
+
+  const currentAmount = useMemo(() => {
+    if (tokenAmounts && tokenAmounts[selectedToken.id] !== undefined) {
+      return tokenAmounts[selectedToken.id];
+    }
+    if (selectedToken.id === "sol" && solAmount !== undefined) {
+      return solAmount;
+    }
+    return amount;
+  }, [tokenAmounts, selectedToken, solAmount, amount]);
 
   const copyToClipboard = useCallback(async (text: string, label: string) => {
     try {
@@ -73,9 +116,9 @@ export function PBTCCheckout({
         merchantWallet,
         amount: currentAmount,
         reference,
-        memo: memo || `${paymentType} Payment - ${reference}`,
+        memo: memo || `${selectedToken.symbol} Payment - ${reference}`,
         payerWallet: publicKey,
-        paymentType,
+        paymentType: selectedToken.id,
       });
 
       if (!createResponse.ok) {
@@ -83,9 +126,7 @@ export function PBTCCheckout({
         throw new Error(errorData.error || "Failed to create payment request");
       }
 
-      const paymentResult = paymentType === "SOL" 
-        ? await sendSOLPayment(merchantWallet, currentAmount)
-        : await sendPBTCPayment(merchantWallet, currentAmount, memo);
+      const paymentResult = await sendTokenPayment(merchantWallet, currentAmount, selectedToken.id);
 
       if (!paymentResult.success || !paymentResult.signature) {
         throw new Error(paymentResult.error || "Transaction failed");
@@ -95,7 +136,7 @@ export function PBTCCheckout({
         reference,
         signature: paymentResult.signature,
         senderWallet: publicKey,
-        paymentType,
+        paymentType: selectedToken.id,
       });
 
       if (!confirmResponse.ok) {
@@ -110,7 +151,7 @@ export function PBTCCheckout({
 
       toast({
         title: "Payment Successful!",
-        description: `${currentAmount} ${currentSymbol} sent to merchant`,
+        description: `${currentAmount} ${selectedToken.symbol} sent to merchant`,
       });
 
       onSuccess?.(paymentResult.signature);
@@ -129,7 +170,7 @@ export function PBTCCheckout({
     } finally {
       setProcessing(false);
     }
-  }, [connected, publicKey, connect, merchantWallet, currentAmount, currentSymbol, reference, memo, toast, onSuccess, onError, paymentType]);
+  }, [connected, publicKey, connect, merchantWallet, currentAmount, selectedToken, reference, memo, toast, onSuccess, onError]);
 
   const handleCancel = useCallback(() => {
     setStatus("pending");
@@ -160,19 +201,15 @@ export function PBTCCheckout({
             <DialogHeader className="space-y-0 relative z-10">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
-                    {paymentType === "SOL" ? (
-                      <SiSolana className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                    ) : (
-                      <span className="text-white font-bold text-sm sm:text-lg">P</span>
-                    )}
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center text-white">
+                    <TokenIcon token={selectedToken} className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div>
                     <DialogTitle className="text-sm sm:text-base font-semibold text-white" data-testid="text-checkout-title">
-                      {paymentType === "SOL" ? "SOL Payment" : "PBTC Payment"}
+                      {selectedToken.symbol} Payment
                     </DialogTitle>
                     <DialogDescription className="text-xs text-white/70">
-                      {paymentType === "SOL" ? "Native Transfer" : "SPL Token Transfer"}
+                      {selectedToken.type === "native" ? "Native Transfer" : "SPL Token Transfer"}
                     </DialogDescription>
                   </div>
                 </div>
@@ -185,37 +222,40 @@ export function PBTCCheckout({
           </div>
 
           <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-            {solAmount && status === "pending" && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant={paymentType === "PBTC" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setPaymentType("PBTC")}
-                  className="flex-1 max-w-28"
-                  data-testid="button-select-pbtc"
-                >
-                  <span className="font-bold mr-1">P</span>
-                  PBTC
-                </Button>
-                <Button
-                  variant={paymentType === "SOL" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setPaymentType("SOL")}
-                  className="flex-1 max-w-28"
-                  data-testid="button-select-sol"
-                >
-                  <SiSolana className="w-4 h-4 mr-1" />
-                  SOL
-                </Button>
+            {availableTokens.length > 1 && status === "pending" && (
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">Pay with</label>
+                <Select value={selectedTokenId} onValueChange={setSelectedTokenId}>
+                  <SelectTrigger className="w-full" data-testid="select-token">
+                    <SelectValue>
+                      <div className="flex items-center gap-2">
+                        <TokenIcon token={selectedToken} className="w-4 h-4" />
+                        <span>{selectedToken.symbol}</span>
+                        <span className="text-muted-foreground">- {selectedToken.name}</span>
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTokens.map((token) => (
+                      <SelectItem key={token.id} value={token.id} data-testid={`select-token-${token.id}`}>
+                        <div className="flex items-center gap-2">
+                          <TokenIcon token={token} className="w-4 h-4" />
+                          <span className="font-medium">{token.symbol}</span>
+                          <span className="text-muted-foreground">- {token.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
             <div className="text-center py-1 sm:py-2">
               <div className="text-xl sm:text-3xl font-bold text-foreground" data-testid="text-payment-amount">
-                {currentAmount.toLocaleString()} {currentSymbol}
+                {currentAmount.toLocaleString()} {selectedToken.symbol}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                {paymentType === "SOL" ? "Native Solana" : "Purple Bitcoin"}
+                {selectedToken.name}
               </p>
             </div>
 
@@ -390,7 +430,7 @@ export function PBTCCheckout({
                         Connecting...
                       </>
                     ) : connected ? (
-                      `Pay ${currentAmount} ${currentSymbol}`
+                      `Pay ${currentAmount} ${selectedToken.symbol}`
                     ) : isPhantomInstalled ? (
                       <>
                         <Wallet className="w-4 h-4 mr-1.5" />
@@ -437,6 +477,8 @@ export function PBTCCheckoutButton({
   onCancel,
   children,
   solAmount,
+  tokenAmounts,
+  enabledTokens,
 }: PBTCCheckoutProps & { children?: React.ReactNode; solAmount?: number }) {
   const [open, setOpen] = useState(false);
 
@@ -447,7 +489,7 @@ export function PBTCCheckoutButton({
         className="h-12 px-6"
         data-testid="button-open-checkout"
       >
-        {children || `Pay ${amount} ${PBTC_CONFIG.symbol}`}
+        {children || `Pay Now`}
       </Button>
       <PBTCCheckout
         amount={amount}
@@ -460,6 +502,8 @@ export function PBTCCheckoutButton({
         open={open}
         onOpenChange={setOpen}
         solAmount={solAmount}
+        tokenAmounts={tokenAmounts}
+        enabledTokens={enabledTokens}
       />
     </>
   );
