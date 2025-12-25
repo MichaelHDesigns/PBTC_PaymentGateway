@@ -4,7 +4,8 @@ import {
   createTransferInstruction,
   TOKEN_PROGRAM_ID,
   getAccount,
-  createAssociatedTokenAccountInstruction
+  createAssociatedTokenAccountInstruction,
+  getMint
 } from "@solana/spl-token";
 import { PBTC_CONFIG, type TokenConfig, getTokenById } from "@shared/schema";
 
@@ -83,9 +84,22 @@ export async function getTokenBalance(
     const mint = new PublicKey(token.mintAddress);
     const ata = await getAssociatedTokenAddress(mint, owner);
     
+    // Fetch actual decimals from the blockchain to ensure accuracy
+    let decimals = token.decimals;
+    try {
+      const mintInfo = await getMint(connection, mint);
+      decimals = mintInfo.decimals;
+      console.log(`Token ${token.symbol}: blockchain decimals = ${decimals}, config decimals = ${token.decimals}`);
+    } catch (mintError) {
+      console.warn(`Could not fetch mint info for ${token.symbol}, using config decimals:`, mintError);
+    }
+    
     const account = await getAccount(connection, ata);
-    return Number(account.amount) / Math.pow(10, token.decimals);
-  } catch {
+    const balance = Number(account.amount) / Math.pow(10, decimals);
+    console.log(`Token ${token.symbol} balance: ${balance} (raw: ${account.amount}, decimals: ${decimals})`);
+    return balance;
+  } catch (error) {
+    console.error(`Error getting ${token?.symbol || 'token'} balance:`, error);
     return 0;
   }
 }
@@ -111,6 +125,16 @@ export async function createSPLTransfer(
   const recipient = new PublicKey(recipientAddress);
   const mint = new PublicKey(token.mintAddress);
   
+  // Fetch actual decimals from blockchain
+  let decimals = token.decimals;
+  try {
+    const mintInfo = await getMint(connection, mint);
+    decimals = mintInfo.decimals;
+    console.log(`Transfer: using blockchain decimals ${decimals} for ${token.symbol}`);
+  } catch (mintError) {
+    console.warn(`Could not fetch mint info for ${token.symbol}, using config decimals:`, mintError);
+  }
+  
   const senderATA = await getAssociatedTokenAddress(mint, sender);
   const recipientATA = await getAssociatedTokenAddress(mint, recipient);
   
@@ -129,7 +153,8 @@ export async function createSPLTransfer(
     );
   }
   
-  const amountInBaseUnits = BigInt(Math.floor(amount * Math.pow(10, token.decimals)));
+  const amountInBaseUnits = BigInt(Math.floor(amount * Math.pow(10, decimals)));
+  console.log(`Transfer amount: ${amount} ${token.symbol} = ${amountInBaseUnits} base units (decimals: ${decimals})`);
   
   transaction.add(
     createTransferInstruction(
