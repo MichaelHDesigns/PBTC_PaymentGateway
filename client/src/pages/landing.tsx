@@ -32,7 +32,7 @@ export default function Landing() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [demoAmount, setDemoAmount] = useState("25");
   const [solAmount] = useState(0.01);
-  const [demoReference, setDemoReference] = useState(`ORDER_${Date.now().toString(36).toUpperCase()}`);
+  const [demoReference, setDemoReference] = useState(`PBTC_ORDER_${Date.now().toString(36).toUpperCase()}`);
   const [recentTransaction, setRecentTransaction] = useState<TransactionDetails | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,7 +58,7 @@ export default function Landing() {
       timestamp: new Date().toISOString(),
       confirmations: 1,
     });
-    setDemoReference(`ORDER_${Date.now().toString(36).toUpperCase()}`);
+    setDemoReference(`PBTC_ORDER_${Date.now().toString(36).toUpperCase()}`);
   };
 
   const scrollToDemo = () => {
