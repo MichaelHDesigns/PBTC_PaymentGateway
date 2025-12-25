@@ -323,7 +323,11 @@ Supports **Phantom Wallet**. Users need Phantom installed to make payments.
 
 ## License
 
-MIT
+MIT License - See [LICENSE](LICENSE) file for details.
+
+### Attribution
+
+This project was created by **MichaelHDesigns**. If you use this payment gateway in your project, we kindly ask that you credit the original author. A simple mention in your README, documentation, or credits page is appreciated!
 
 ## Links
 
