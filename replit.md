@@ -6,11 +6,11 @@ A non-custodial payment gateway for Solana SPL tokens and native SOL.
 
 This is a React application providing a payment checkout for multiple Solana tokens. 
 
-**Quick Start:** Run `npm install` then `npm run dev`
+**Quick Start:** Run `npm install` then `npm run build` then `npm start`
 
 Key features:
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
-- **Multi-token support**: Accept SOL, PBTC, USDC, USDT (configurable via tokens.json)
+- **Multi-token support**: Accept SOL, PBTC, USDC, ARMY, BULLISH, SILVER (configurable via tokens.json)
 - **Mobile responsive**: Works on all devices
 - **On-chain verification**: Backend API to verify payments
 - **No KYC required**: Permissionless payments
@@ -62,7 +62,7 @@ Create a new payment request. Optionally locks the payment to a specific payer w
   "paymentType": "pbtc"
 }
 ```
-- `paymentType`: Token ID from tokens.json (e.g., "sol", "pbtc", "usdc", "usdt")
+- `paymentType`: Token ID from tokens.json (e.g., "sol", "pbtc", "usdc", "army", "bullish", "silver")
 
 ### POST /api/payments/lock
 Lock an existing payment to a specific payer wallet (security feature to prevent replay attacks).
@@ -116,9 +116,16 @@ The payment gateway includes several security measures to prevent fraud:
 
 ## Development
 
-Run with: `npm run dev`
+### Scripts
 
-The app runs on port 5000 with hot reload enabled.
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run dev` | Start development server with hot reload |
+
+The app runs on port 5000.
 
 ## Design System
 

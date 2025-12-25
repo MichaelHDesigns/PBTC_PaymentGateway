@@ -1,13 +1,13 @@
 # PBTC Payment Gateway
 
-A non-custodial payment gateway for Solana SPL tokens including PBTC, USDC, USDT, and native SOL.
+A non-custodial payment gateway for Solana SPL tokens and native SOL.
 
 ![PBTC Logo](attached_assets/pbtc_1766635861226.png)
 
 ## Features
 
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
-- **Multi-Token Support**: Accept SOL, PBTC, USDC, USDT (configurable via tokens.json)
+- **Multi-Token Support**: Accept SOL, PBTC, USDC, ARMY, BULLISH, SILVER (configurable via tokens.json)
 - **Mobile Responsive**: Fully responsive design works on all devices
 - **ID Card Style Checkout**: Sleek payment modal with gradient header design
 - **Token Selector**: Users choose which token to pay with from a dropdown
@@ -17,6 +17,8 @@ A non-custodial payment gateway for Solana SPL tokens including PBTC, USDC, USDT
 
 ## Supported Tokens
 
+Configure tokens in `shared/tokens.json`. Default supported tokens:
+
 | Token | Symbol | Type | Mint Address |
 |-------|--------|------|--------------|
 | Solana | SOL | Native | - |
@@ -25,8 +27,6 @@ A non-custodial payment gateway for Solana SPL tokens including PBTC, USDC, USDT
 | Army Gang | ARMY | SPL | `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump` |
 | Bullish Degen | BULLISH | SPL | `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump` |
 | Silver Coin | SILVER | SPL | `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump` |
-
-Tokens are configured in `shared/tokens.json`. Add or remove tokens by editing this file.
 
 ## Pages
 
@@ -42,10 +42,119 @@ Tokens are configured in `shared/tokens.json`. Add or remove tokens by editing t
 git clone https://github.com/MichaelHDesigns/PBTC_PaymentGateway
 cd PBTC_PaymentGateway
 npm install
-npm run dev
+npm run build
+npm start
 ```
 
 Open http://localhost:5000 to see the demo.
+
+### Development Mode
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Token Configuration (tokens.json)
+
+All supported tokens are defined in `shared/tokens.json`. This makes it easy to add, remove, or modify tokens without changing code.
+
+### tokens.json Structure
+
+```json
+{
+  "tokens": [
+    {
+      "id": "sol",
+      "name": "Solana",
+      "symbol": "SOL",
+      "decimals": 9,
+      "type": "native",
+      "mintAddress": null,
+      "icon": "solana"
+    },
+    {
+      "id": "pbtc",
+      "name": "Purple Bitcoin",
+      "symbol": "PBTC",
+      "decimals": 9,
+      "type": "spl",
+      "mintAddress": "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p",
+      "icon": "pbtc"
+    },
+    {
+      "id": "usdc",
+      "name": "USD Coin",
+      "symbol": "USDC",
+      "decimals": 6,
+      "type": "spl",
+      "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "icon": "usdc"
+    },
+    {
+      "id": "army",
+      "name": "Army Gang",
+      "symbol": "ARMY",
+      "decimals": 6,
+      "type": "spl",
+      "mintAddress": "CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump",
+      "icon": "army"
+    },
+    {
+      "id": "bullish",
+      "name": "Bullish Degen",
+      "symbol": "BULLISH",
+      "decimals": 6,
+      "type": "spl",
+      "mintAddress": "C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump",
+      "icon": "bullish"
+    },
+    {
+      "id": "silver",
+      "name": "Silver Coin",
+      "symbol": "SILVER",
+      "decimals": 6,
+      "type": "spl",
+      "mintAddress": "DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump",
+      "icon": "silver"
+    }
+  ]
+}
+```
+
+### Token Configuration Fields
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier used in code (lowercase) |
+| `name` | Display name shown to users |
+| `symbol` | Token ticker symbol |
+| `decimals` | Token decimal places (9 for SOL/PBTC, 6 for USDC/USDT) |
+| `type` | `"native"` for SOL, `"spl"` for SPL tokens |
+| `mintAddress` | SPL token mint address (null for SOL) |
+| `icon` | Icon identifier for styling |
+
+### Adding a New Token
+
+1. Open `shared/tokens.json`
+2. Add a new token object to the `tokens` array:
+
+```json
+{
+  "id": "mytoken",
+  "name": "My Token",
+  "symbol": "MTK",
+  "decimals": 9,
+  "type": "spl",
+  "mintAddress": "YOUR_TOKEN_MINT_ADDRESS",
+  "icon": "mytoken"
+}
+```
+
+3. Optionally add an icon in `pbtc-checkout.tsx` TokenIcon component
+4. Rebuild and restart the app
 
 ---
 
@@ -123,12 +232,14 @@ function CheckoutPage() {
   amount={25}
   reference="ORDER_123"
   tokenAmounts={{
-    sol: 0.1,      // 0.1 SOL
-    pbtc: 25,      // 25 PBTC  
-    usdc: 10,      // 10 USDC
-    usdt: 10,      // 10 USDT
+    sol: 0.1,       // 0.1 SOL
+    pbtc: 25,       // 25 PBTC  
+    usdc: 10,       // 10 USDC
+    army: 1000,     // 1000 ARMY
+    bullish: 500,   // 500 BULLISH
+    silver: 100,    // 100 SILVER
   }}
-  enabledTokens={["sol", "pbtc", "usdc", "usdt"]}
+  enabledTokens={["sol", "pbtc", "usdc", "army", "bullish", "silver"]}
   onSuccess={(signature) => console.log("Paid:", signature)}
 />
 ```
@@ -169,41 +280,6 @@ if (paid) {
 | `onCancel` | function | No | Called when user cancels payment |
 | `tokenAmounts` | object | No | Amount per token ID: `{ sol: 0.1, pbtc: 25, usdc: 10 }` |
 | `enabledTokens` | string[] | No | Array of token IDs to enable: `["sol", "pbtc", "usdc"]` |
-| `solAmount` | number | No | Legacy: If set, enables SOL payment option |
-
-## Adding Custom Tokens
-
-Edit `shared/tokens.json` to add new SPL tokens:
-
-```json
-{
-  "tokens": [
-    {
-      "id": "mytoken",
-      "name": "My Token",
-      "symbol": "MTK",
-      "decimals": 9,
-      "type": "spl",
-      "mintAddress": "YOUR_TOKEN_MINT_ADDRESS",
-      "icon": "mytoken"
-    }
-  ]
-}
-```
-
-## Token Configuration
-
-Located in `shared/tokens.json`:
-
-| Field | Description |
-|-------|-------------|
-| `id` | Unique identifier used in code |
-| `name` | Display name |
-| `symbol` | Token ticker symbol |
-| `decimals` | Token decimal places |
-| `type` | `"native"` for SOL, `"spl"` for SPL tokens |
-| `mintAddress` | SPL token mint address (null for SOL) |
-| `icon` | Icon identifier |
 
 ## Wallet Support
 
@@ -214,6 +290,15 @@ Supports **Phantom Wallet**. Users need Phantom installed to make payments.
 - **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Express.js, Node.js
 - **Blockchain**: Solana web3.js, SPL Token
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run dev` | Start development server with hot reload |
 
 ## License
 
