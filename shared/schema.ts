@@ -102,10 +102,10 @@ export interface TransactionDetails {
 
 // PBTC Token Configuration
 export const PBTC_CONFIG = {
-  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p", // Purple Bitcoin mint address (placeholder)
+  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p", // Purple Bitcoin mint address
   decimals: 9,
   symbol: "PBTC",
   name: "Purple Bitcoin",
   network: "mainnet-beta" as const,
-  rpcUrl: "https://api.mainnet-beta.solana.com",
+  rpcUrl: process.env.HELIUS_RPC_URL || "https://api.mainnet-beta.solana.com",
 };
