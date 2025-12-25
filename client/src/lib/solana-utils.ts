@@ -23,8 +23,35 @@ declare global {
   }
 }
 
+let cachedRpcUrl: string | null = null;
+
+async function getRpcUrl(): Promise<string> {
+  if (cachedRpcUrl) return cachedRpcUrl;
+  
+  try {
+    const response = await fetch("/api/config");
+    if (response.ok) {
+      const config = await response.json();
+      if (config.rpcUrl) {
+        cachedRpcUrl = config.rpcUrl;
+        return cachedRpcUrl;
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to fetch RPC config, using fallback");
+  }
+  
+  return "https://api.mainnet-beta.solana.com";
+}
+
+export async function getConnectionAsync(): Promise<Connection> {
+  const rpcUrl = await getRpcUrl();
+  return new Connection(rpcUrl, "confirmed");
+}
+
 export function getConnection(): Connection {
-  return new Connection(PBTC_CONFIG.rpcUrl, "confirmed");
+  const rpcUrl = cachedRpcUrl || "https://api.mainnet-beta.solana.com";
+  return new Connection(rpcUrl, "confirmed");
 }
 
 export function getPBTCMint(): PublicKey {
@@ -116,7 +143,7 @@ export async function sendPBTCPayment(
   }
   
   try {
-    const connection = getConnection();
+    const connection = await getConnectionAsync();
     const senderAddress = window.solana.publicKey.toString();
     
     const balance = await getTokenBalance(connection, senderAddress);

@@ -107,5 +107,12 @@ export const PBTC_CONFIG = {
   symbol: "PBTC",
   name: "Purple Bitcoin",
   network: "mainnet-beta" as const,
-  rpcUrl: process.env.HELIUS_RPC_URL || "https://api.mainnet-beta.solana.com",
+  rpcUrl: "https://api.mainnet-beta.solana.com",
 };
+
+export function getServerRpcUrl(): string {
+  if (typeof process !== "undefined" && process.env?.HELIUS_API_KEY) {
+    return `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
+  }
+  return PBTC_CONFIG.rpcUrl;
+}

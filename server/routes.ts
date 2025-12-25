@@ -1,10 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { initPaymentSchema, verifyPaymentSchema, PBTC_CONFIG } from "@shared/schema";
+import { initPaymentSchema, verifyPaymentSchema, PBTC_CONFIG, getServerRpcUrl } from "@shared/schema";
 import { Connection, PublicKey } from "@solana/web3.js";
 
-const connection = new Connection(PBTC_CONFIG.rpcUrl, "confirmed");
+const rpcUrl = getServerRpcUrl();
+const connection = new Connection(rpcUrl, "confirmed");
 
 interface VerificationResult {
   valid: boolean;
@@ -448,6 +449,7 @@ export async function registerRoutes(
         decimals: PBTC_CONFIG.decimals,
       },
       network: PBTC_CONFIG.network,
+      rpcUrl: rpcUrl,
     });
   });
 
