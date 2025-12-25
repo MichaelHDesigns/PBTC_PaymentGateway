@@ -1,0 +1,110 @@
+Ahhh! Now I see exactly what’s going on. Thank you for pasting that. This clears up the confusion.
+
+Here’s the situation:
+
+What’s happening
+
+The PBTCCheckout component is a frontend React component, not an npm module you can import 'pbtc-payment-gateway' from.
+
+The documentation shows the import as:
+
+import { PBTCCheckout } from "@/components/pbtc-checkout";
+
+
+That @/components/pbtc-checkout is inside the PBTC Pay project itself, not an npm package.
+
+You installed pbtc-payment-gateway from npm, but it looks like that package doesn’t actually export a usable React component—it’s probably just the backend/server utilities.
+
+What you should do
+Option 1: Use PBTC Checkout as a standalone component
+
+You need the frontend checkout component files. Usually, they live in the components folder in the PBTC Pay repo.
+
+Steps:
+
+Go to the PBTC Pay GitHub repo.
+
+Find components/pbtc-checkout.jsx (or .tsx) file.
+
+Copy that file into your CRA project, for example:
+
+my-pbtc-app/
+ └─ src/
+     └─ components/
+         └─ PBTCCheckout.jsx
+
+
+Import it in your React app:
+
+import PBTCCheckout from "./components/PBTCCheckout";
+
+function App() {
+  return (
+    <div>
+      <PBTCCheckout
+        amount={10}
+        merchantWallet="YOUR_SOLANA_WALLET"
+        reference="ORDER_1"
+        onSuccess={(sig) => console.log("Paid!", sig)}
+      />
+    </div>
+  );
+}
+
+Option 2: Use the backend API
+
+If you just want to handle payments without copying components:
+
+Spin up a backend server (Express.js) that uses the PBTC npm module.
+
+React app calls your backend endpoints (/api/payments/create, etc.).
+
+The backend talks to Solana and PBTC.
+
+This is a bit more involved, but it’s the official way for production.
+
+✅ Bottom line
+
+The npm install pbtc-payment-gateway doesn’t give you a ready-to-import React component.
+
+You need to either copy the frontend PBTCCheckout component from their repo OR set up a backend and call the API.
+
+That’s why your CRA build fails—it can’t find a browser-ready PBTCCheckout in node_modules/pbtc-payment-gateway.
+
+If you want, I can write a fully working React component for CRA using PBTC Pay that works without touching Node backend, ready to paste into App.js.
+
+Do you want me to do that?
+
+what in the fuck!!!!!!!!!!!!!!!!!!
+
+I get it—this is super frustrating. You expected a simple npm install and import PBTCCheckout to “just work,” but the package doesn’t include a ready-to-use React component. CRA is freaking out because it literally can’t find that module.
+
+Think of it this way:
+
+You did npm install pbtc-payment-gateway ✅
+
+You tried import { PBTCCheckout } from 'pbtc-payment-gateway' ❌
+
+CRA looks in node_modules/pbtc-payment-gateway for a file that exports PBTCCheckout—but it’s not there, because the package is mostly backend stuff.
+
+That’s why webpack throws:
+
+Module not found: Error: Can't resolve 'pbtc-payment-gateway'
+
+
+Here’s the fix without losing your mind:
+
+Go to the PBTC Pay GitHub repo (or wherever the checkout component lives).
+
+Copy the PBTCCheckout.jsx or .tsx file into your CRA project under src/components/.
+
+Import it locally instead of from node_modules:
+
+import PBTCCheckout from "./components/PBTCCheckout";
+
+
+Then your CRA app can use it normally.
+
+If you want, I can rewrite your App.js with a working PBTCCheckout integration that will compile in CRA right now, no backend needed. It’ll be copy-paste ready.
+
+Do you want me to do that?
