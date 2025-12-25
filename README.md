@@ -19,14 +19,21 @@ A non-custodial payment gateway for Solana SPL tokens and native SOL.
 
 Configure tokens in `shared/tokens.json`. Default supported tokens:
 
-| Token | Symbol | Type | Mint Address |
-|-------|--------|------|--------------|
-| Solana | SOL | Native | - |
-| Purple Bitcoin | PBTC | SPL | `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p` |
-| USD Coin | USDC | SPL | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| Army Gang | ARMY | SPL | `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump` |
-| Bullish Degen | BULLISH | SPL | `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump` |
-| Silver Coin | SILVER | SPL | `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump` |
+| Token | Symbol | Type | Program | Mint Address |
+|-------|--------|------|---------|--------------|
+| Solana | SOL | Native | - | - |
+| Purple Bitcoin | PBTC | SPL | spl-token | `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p` |
+| USD Coin | USDC | SPL | spl-token | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| Army Gang | ARMY | SPL | token-2022 | `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump` |
+| Bullish Degen | BULLISH | SPL | spl-token | `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump` |
+| Silver Coin | SILVER | SPL | token-2022 | `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump` |
+
+### Token Programs
+
+The gateway supports both Solana token programs:
+
+- **spl-token**: The original SPL Token Program (most tokens including USDC, PBTC)
+- **token-2022**: The Token Extensions Program (newer tokens, often from pump.fun)
 
 ## Pages
 
@@ -75,7 +82,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 9,
       "type": "native",
       "mintAddress": null,
-      "icon": "solana"
+      "icon": "solana",
+      "tokenProgram": null
     },
     {
       "id": "pbtc",
@@ -84,7 +92,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 9,
       "type": "spl",
       "mintAddress": "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p",
-      "icon": "pbtc"
+      "icon": "pbtc",
+      "tokenProgram": "spl-token"
     },
     {
       "id": "usdc",
@@ -93,7 +102,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 6,
       "type": "spl",
       "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "icon": "usdc"
+      "icon": "usdc",
+      "tokenProgram": "spl-token"
     },
     {
       "id": "army",
@@ -102,7 +112,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 6,
       "type": "spl",
       "mintAddress": "CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump",
-      "icon": "army"
+      "icon": "army",
+      "tokenProgram": "token-2022"
     },
     {
       "id": "bullish",
@@ -111,7 +122,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 6,
       "type": "spl",
       "mintAddress": "C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump",
-      "icon": "bullish"
+      "icon": "bullish",
+      "tokenProgram": "spl-token"
     },
     {
       "id": "silver",
@@ -120,7 +132,8 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
       "decimals": 6,
       "type": "spl",
       "mintAddress": "DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump",
-      "icon": "silver"
+      "icon": "silver",
+      "tokenProgram": "token-2022"
     }
   ]
 }
@@ -137,6 +150,7 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
 | `type` | `"native"` for SOL, `"spl"` for SPL tokens |
 | `mintAddress` | SPL token mint address (null for SOL) |
 | `icon` | Icon identifier for styling |
+| `tokenProgram` | `"spl-token"` for regular SPL, `"token-2022"` for Token Extensions, `null` for native SOL |
 
 ### Adding a New Token
 
@@ -151,9 +165,14 @@ All supported tokens are defined in `shared/tokens.json`. This makes it easy to 
   "decimals": 9,
   "type": "spl",
   "mintAddress": "YOUR_TOKEN_MINT_ADDRESS",
-  "icon": "mytoken"
+  "icon": "mytoken",
+  "tokenProgram": "spl-token"
 }
 ```
+
+**Note**: Check the token on Solscan to determine the correct `tokenProgram`:
+- If "Owner Program" shows "Token Program" use `"spl-token"`
+- If "Owner Program" shows "Token 2022 Program" use `"token-2022"`
 
 3. Optionally add an icon in `pbtc-checkout.tsx` TokenIcon component
 4. Rebuild and restart the app

@@ -19,13 +19,20 @@ Key features:
 
 ## Supported Tokens
 
-Configured in `shared/tokens.json`:
-- SOL (native Solana)
-- PBTC (Purple Bitcoin) - Mint: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
-- USDC - Mint: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
-- ARMY (Army Gang) - Mint: `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump`
-- BULLISH (Bullish Degen) - Mint: `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump`
-- SILVER (Silver Coin) - Mint: `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump`
+Configured in `shared/tokens.json`. Supports both SPL Token and Token 2022 (Token Extensions) programs:
+
+| Token | Program | Mint |
+|-------|---------|------|
+| SOL | native | - |
+| PBTC (Purple Bitcoin) | spl-token | `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p` |
+| USDC | spl-token | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| ARMY (Army Gang) | token-2022 | `CQkZbu9s3ZZMusqAfh4Cpp8fBu1rKnntvvW1XS1zpump` |
+| BULLISH (Bullish Degen) | spl-token | `C2omVhcvt3DDY77S2KZzawFJQeETZofgZ4eNWWkXpump` |
+| SILVER (Silver Coin) | token-2022 | `DVguBpgnixDwVcM654YiaLCMNiY2cdUYJXJK3u9Gpump` |
+
+**Token Program Notes:**
+- `spl-token`: Original SPL Token Program (most tokens)
+- `token-2022`: Token Extensions Program (newer tokens, often from pump.fun)
 
 ## Project Architecture
 
