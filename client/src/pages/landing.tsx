@@ -490,41 +490,17 @@ if (paid) {
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     1
                   </span>
-                  <CardTitle className="text-base sm:text-lg">Clone the Repository</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Copy Component Files</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
-                  <code className="font-mono text-xs sm:text-sm truncate">git clone {GITHUB_URL}</code>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => copyCode(`git clone ${GITHUB_URL}`, "Clone")}
-                    className="flex-shrink-0"
-                    data-testid="button-copy-clone"
-                  >
-                    {copied === "Clone" ? (
-                      <Check className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
-                  <code className="font-mono text-xs sm:text-sm truncate">npm install && npm run dev</code>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => copyCode("npm install && npm run dev", "Run")}
-                    className="flex-shrink-0"
-                    data-testid="button-copy-run"
-                  >
-                    {copied === "Run" ? (
-                      <Check className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
+              <CardContent className="space-y-3">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Clone the repo and copy these files into your project:
+                </p>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-1">
+                  <code className="font-mono text-xs sm:text-sm block">client/src/components/pbtc-checkout.tsx</code>
+                  <code className="font-mono text-xs sm:text-sm block">client/src/lib/wallet-context.tsx</code>
+                  <code className="font-mono text-xs sm:text-sm block">shared/schema.ts</code>
                 </div>
               </CardContent>
             </Card>
@@ -535,7 +511,36 @@ if (paid) {
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
                     2
                   </span>
-                  <CardTitle className="text-base sm:text-lg">Add the Checkout Component</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Install Dependencies</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="p-3 sm:p-4 rounded-lg bg-muted/50 flex items-center justify-between gap-2 sm:gap-4">
+                  <code className="font-mono text-xs sm:text-sm truncate">npm install @solana/web3.js @solana/spl-token bs58 buffer</code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => copyCode("npm install @solana/web3.js @solana/spl-token bs58 buffer", "Deps")}
+                    className="flex-shrink-0"
+                    data-testid="button-copy-deps"
+                  >
+                    {copied === "Deps" ? (
+                      <Check className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-docs-step-3">
+              <CardHeader className="pb-2 sm:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
+                    3
+                  </span>
+                  <CardTitle className="text-base sm:text-lg">Use the Component</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
@@ -563,11 +568,11 @@ if (paid) {
               </CardContent>
             </Card>
 
-            <Card data-testid="card-docs-step-3">
+            <Card data-testid="card-docs-step-4">
               <CardHeader className="pb-2 sm:pb-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-medium flex items-center justify-center">
-                    3
+                    4
                   </span>
                   <CardTitle className="text-base sm:text-lg">Verify Payments (Backend)</CardTitle>
                 </div>

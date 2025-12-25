@@ -4,13 +4,6 @@ A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native S
 
 ![PBTC Logo](attached_assets/pbtc_1766635861226.png)
 
-## Quick Start
-
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm run dev`
-4. Open http://localhost:5000
-
 ## Features
 
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
@@ -19,15 +12,46 @@ A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native S
 - **On-chain Verification**: Backend API to verify payments
 - **Security**: Wallet locking, transaction replay prevention, sender verification
 
-## Using the Checkout Component
+## Quick Start
 
-Add payments to any page:
+### Run the Demo
+
+```bash
+git clone https://github.com/MichaelHDesigns/PBTC_PaymentGateway
+cd PBTC_PaymentGateway
+npm install
+npm run dev
+```
+
+Open http://localhost:5000 to see the demo.
+
+---
+
+## Integrate Into Your Project
+
+### Step 1: Copy Component Files
+
+Copy these files from the cloned repo into your project:
+
+```
+client/src/components/pbtc-checkout.tsx
+client/src/lib/wallet-context.tsx
+shared/schema.ts
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install @solana/web3.js @solana/spl-token bs58 buffer
+```
+
+### Step 3: Use the Component
 
 ```jsx
-import { PBTCCheckout } from "@/components/pbtc-checkout";
+import { PBTCCheckout } from "./components/pbtc-checkout";
 import { useState } from "react";
 
-function MyPage() {
+function CheckoutPage() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -50,6 +74,27 @@ function MyPage() {
 }
 ```
 
+### Step 4: Verify Payments (Backend)
+
+```javascript
+const response = await fetch('/api/verify-payment', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    reference: 'ORDER_123',
+    merchantWallet: 'YOUR_WALLET',
+    expectedAmount: 25
+  })
+});
+
+const { paid, signature } = await response.json();
+if (paid) {
+  // Unlock content, fulfill order, etc.
+}
+```
+
+---
+
 ## Props
 
 | Prop | Type | Required | Description |
@@ -61,20 +106,6 @@ function MyPage() {
 | `onSuccess` | function | No | Called with signature on success |
 | `onError` | function | No | Called with error on failure |
 | `solAmount` | number | No | If set, enables SOL payment option |
-
-## API Endpoints
-
-### POST /api/payments/create
-Create a new payment request.
-
-### POST /api/payments/confirm
-Confirm a payment after transaction.
-
-### POST /api/verify-payment
-Verify a payment by reference.
-
-### POST /api/verify-onchain
-Verify a transaction directly on-chain.
 
 ## PBTC Token
 
