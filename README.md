@@ -8,9 +8,17 @@ A non-custodial payment gateway for Purple Bitcoin (PBTC) SPL token and native S
 
 - **Non-custodial**: Users pay directly from their wallet to merchant wallets
 - **Dual Currency**: Accept both PBTC (SPL token) and native SOL
-- **Mobile Responsive**: Works on all devices
+- **Mobile Responsive**: Fully responsive design works on all devices
+- **ID Card Style Checkout**: Sleek payment modal with gradient header design
 - **On-chain Verification**: Backend API to verify payments
 - **Security**: Wallet locking, transaction replay prevention, sender verification
+- **Legal Pages**: Includes Terms of Service and Privacy Policy pages
+
+## Pages
+
+- `/` - Landing page with live demo
+- `/terms` - Terms of Service
+- `/privacy` - Privacy Policy
 
 ## Quick Start
 
@@ -36,6 +44,7 @@ Copy these files from the cloned repo into your project:
 ```
 client/src/components/pbtc-checkout.tsx
 client/src/lib/wallet-context.tsx
+client/src/lib/solana-utils.ts
 shared/schema.ts
 ```
 
@@ -45,7 +54,21 @@ shared/schema.ts
 npm install @solana/web3.js @solana/spl-token bs58 buffer
 ```
 
-### Step 3: Use the Component
+### Step 3: Wrap Your App with WalletProvider
+
+```jsx
+import { WalletProvider } from "./lib/wallet-context";
+
+function App() {
+  return (
+    <WalletProvider>
+      <YourApp />
+    </WalletProvider>
+  );
+}
+```
+
+### Step 4: Use the Component
 
 ```jsx
 import { PBTCCheckout } from "./components/pbtc-checkout";
@@ -74,7 +97,7 @@ function CheckoutPage() {
 }
 ```
 
-### Step 4: Verify Payments (Backend)
+### Step 5: Verify Payments (Backend)
 
 ```javascript
 const response = await fetch('/api/verify-payment', {
@@ -99,12 +122,15 @@ if (paid) {
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
+| `open` | boolean | Yes | Controls modal visibility |
+| `onOpenChange` | function | Yes | Called when modal should open/close |
 | `amount` | number | Yes | Amount in PBTC |
 | `merchantWallet` | string | Yes | Solana wallet to receive payment |
 | `reference` | string | Yes | Unique order/payment reference |
 | `memo` | string | No | Payment description |
 | `onSuccess` | function | No | Called with signature on success |
 | `onError` | function | No | Called with error on failure |
+| `onCancel` | function | No | Called when user cancels payment |
 | `solAmount` | number | No | If set, enables SOL payment option |
 
 ## PBTC Token
@@ -116,6 +142,12 @@ if (paid) {
 ## Wallet Support
 
 Supports **Phantom Wallet**. Users need Phantom installed to make payments.
+
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Express.js, Node.js
+- **Blockchain**: Solana web3.js, SPL Token
 
 ## License
 
