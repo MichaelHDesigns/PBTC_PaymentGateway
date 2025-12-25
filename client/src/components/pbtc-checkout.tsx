@@ -153,10 +153,10 @@ export function PBTCCheckout({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg w-full p-0 gap-0 overflow-hidden mx-2 sm:mx-auto rounded-xl border-2 shadow-2xl aspect-[1.6/1] sm:aspect-[1.75/1]">
-        <div className="h-full flex flex-col">
-          <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 p-3 sm:p-4 relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md w-full max-h-[90vh] p-0 gap-0 mx-2 sm:mx-auto rounded-xl border-2 shadow-2xl overflow-y-auto">
+        <div className="flex flex-col">
+          <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 p-3 sm:p-4 relative overflow-hidden sticky top-0 z-10">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50"></div>
             <DialogHeader className="space-y-0 relative z-10">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -184,7 +184,7 @@ export function PBTCCheckout({
             </DialogHeader>
           </div>
 
-          <div className="flex-1 p-3 sm:p-4 space-y-3 sm:space-y-4 overflow-y-auto">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
             {solAmount && status === "pending" && (
               <div className="flex items-center justify-center gap-2">
                 <Button
