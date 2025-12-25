@@ -153,272 +153,273 @@ export function PBTCCheckout({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md p-0 gap-0 overflow-hidden mx-auto">
-        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 sm:p-6 pb-3 sm:pb-4">
-          <DialogHeader className="space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                  {paymentType === "SOL" ? (
-                    <SiSolana className="w-5 h-5 text-primary-foreground" />
-                  ) : (
-                    <span className="text-primary-foreground font-bold text-lg">P</span>
-                  )}
+      <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg w-full p-0 gap-0 overflow-hidden mx-2 sm:mx-auto rounded-xl border-2 shadow-2xl aspect-[1.6/1] sm:aspect-[1.75/1]">
+        <div className="h-full flex flex-col">
+          <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 p-3 sm:p-4 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
+            <DialogHeader className="space-y-0 relative z-10">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                    {paymentType === "SOL" ? (
+                      <SiSolana className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    ) : (
+                      <span className="text-white font-bold text-sm sm:text-lg">P</span>
+                    )}
+                  </div>
+                  <div>
+                    <DialogTitle className="text-sm sm:text-base font-semibold text-white" data-testid="text-checkout-title">
+                      {paymentType === "SOL" ? "SOL Payment" : "PBTC Payment"}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-white/70">
+                      {paymentType === "SOL" ? "Native Transfer" : "SPL Token Transfer"}
+                    </DialogDescription>
+                  </div>
                 </div>
-                <div>
-                  <DialogTitle className="text-lg font-semibold" data-testid="text-checkout-title">
-                    {paymentType === "SOL" ? "Solana Payment" : "PBTC Payment"}
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-muted-foreground">
-                    {paymentType === "SOL" ? "Native SOL Transfer" : "Secure SPL Token Transfer"}
-                  </DialogDescription>
-                </div>
+                <Badge variant="secondary" className="text-[10px] sm:text-xs bg-white/20 text-white border-0">
+                  <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                  Secure
+                </Badge>
               </div>
-              <Badge variant="secondary" className="text-xs">
-                <Shield className="w-3 h-3 mr-1" />
-                Secure
-              </Badge>
-            </div>
-          </DialogHeader>
-        </div>
-
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-          {solAmount && status === "pending" && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                variant={paymentType === "PBTC" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setPaymentType("PBTC")}
-                className="flex-1 max-w-32"
-                data-testid="button-select-pbtc"
-              >
-                <span className="font-bold mr-1">P</span>
-                PBTC
-              </Button>
-              <Button
-                variant={paymentType === "SOL" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setPaymentType("SOL")}
-                className="flex-1 max-w-32"
-                data-testid="button-select-sol"
-              >
-                <SiSolana className="w-4 h-4 mr-1" />
-                SOL
-              </Button>
-            </div>
-          )}
-
-          <div className="text-center py-2 sm:py-4">
-            <div className="text-2xl sm:text-4xl font-bold text-foreground" data-testid="text-payment-amount">
-              {currentAmount.toLocaleString()} {currentSymbol}
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              {paymentType === "SOL" ? "Native Solana" : "Purple Bitcoin"}
-            </p>
+            </DialogHeader>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-muted/50">
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground mb-1">Recipient Wallet</p>
-                <p className="font-mono text-sm truncate" data-testid="text-merchant-wallet">
-                  {truncateAddress(merchantWallet, 8)}
-                </p>
+          <div className="flex-1 p-3 sm:p-4 space-y-3 sm:space-y-4 overflow-y-auto">
+            {solAmount && status === "pending" && (
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant={paymentType === "PBTC" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPaymentType("PBTC")}
+                  className="flex-1 max-w-28"
+                  data-testid="button-select-pbtc"
+                >
+                  <span className="font-bold mr-1">P</span>
+                  PBTC
+                </Button>
+                <Button
+                  variant={paymentType === "SOL" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPaymentType("SOL")}
+                  className="flex-1 max-w-28"
+                  data-testid="button-select-sol"
+                >
+                  <SiSolana className="w-4 h-4 mr-1" />
+                  SOL
+                </Button>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => copyToClipboard(merchantWallet, "Wallet address")}
-                data-testid="button-copy-wallet"
-              >
-                {copied === "Wallet address" ? (
-                  <Check className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </Button>
+            )}
+
+            <div className="text-center py-1 sm:py-2">
+              <div className="text-xl sm:text-3xl font-bold text-foreground" data-testid="text-payment-amount">
+                {currentAmount.toLocaleString()} {currentSymbol}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                {paymentType === "SOL" ? "Native Solana" : "Purple Bitcoin"}
+              </p>
             </div>
 
-            <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-muted/50">
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground mb-1">Reference ID</p>
-                <p className="font-mono text-sm" data-testid="text-reference">
-                  {reference}
-                </p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-lg bg-muted/50">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-muted-foreground">Recipient</p>
+                  <p className="font-mono text-[11px] sm:text-xs truncate" data-testid="text-merchant-wallet">
+                    {truncateAddress(merchantWallet, 4)}
+                  </p>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 flex-shrink-0"
+                  onClick={() => copyToClipboard(merchantWallet, "Wallet address")}
+                  data-testid="button-copy-wallet"
+                >
+                  {copied === "Wallet address" ? (
+                    <Check className="w-3 h-3 text-green-500" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </Button>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => copyToClipboard(reference, "Reference ID")}
-                data-testid="button-copy-reference"
-              >
-                {copied === "Reference ID" ? (
-                  <Check className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </Button>
+
+              <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-lg bg-muted/50">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-muted-foreground">Reference</p>
+                  <p className="font-mono text-[11px] sm:text-xs truncate" data-testid="text-reference">
+                    {reference}
+                  </p>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 flex-shrink-0"
+                  onClick={() => copyToClipboard(reference, "Reference ID")}
+                  data-testid="button-copy-reference"
+                >
+                  {copied === "Reference ID" ? (
+                    <Check className="w-3 h-3 text-green-500" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             {connected && publicKey && (
-              <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-green-500/20 bg-green-500/5">
+              <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-lg border border-green-500/20 bg-green-500/5">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                   <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Connected Wallet</p>
-                    <p className="font-mono text-sm truncate" data-testid="text-connected-wallet">
-                      {truncateAddress(publicKey, 6)}
+                    <p className="text-[10px] text-muted-foreground">Connected</p>
+                    <p className="font-mono text-[11px] sm:text-xs truncate" data-testid="text-connected-wallet">
+                      {truncateAddress(publicKey, 4)}
                     </p>
                   </div>
                 </div>
-                <Wallet className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <Wallet className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
               </div>
             )}
-          </div>
 
-          {status === "confirmed" && signature && (
-            <div className="p-4 rounded-lg border border-green-500/20 bg-green-500/5 space-y-3">
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" />
+            {status === "confirmed" && signature && (
+              <div className="p-2 sm:p-3 rounded-lg border border-green-500/20 bg-green-500/5 space-y-2">
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                  <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="font-medium text-sm">Payment Confirmed</span>
                 </div>
-                <span className="font-medium">Payment Confirmed</span>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-mono text-[10px] sm:text-xs truncate text-muted-foreground">
+                    {truncateAddress(signature, 8)}
+                  </p>
+                  <div className="flex gap-1 flex-shrink-0">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() => copyToClipboard(signature, "Transaction")}
+                      data-testid="button-copy-signature"
+                    >
+                      {copied === "Transaction" ? (
+                        <Check className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() => window.open(`https://solscan.io/tx/${signature}`, "_blank")}
+                      data-testid="button-view-explorer"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-mono text-xs truncate text-muted-foreground">
-                  {truncateAddress(signature, 12)}
+            )}
+
+            {status === "failed" && (
+              <div className="p-2 sm:p-3 rounded-lg border border-destructive/20 bg-destructive/5 space-y-1">
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="font-medium text-sm">Payment Failed</span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground">
+                  {errorMessage || "Transaction could not be completed. Please try again."}
                 </p>
-                <div className="flex gap-1 flex-shrink-0">
+              </div>
+            )}
+
+            {!isPhantomInstalled && !connected && (
+              <div className="p-2 sm:p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 space-y-1">
+                <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="font-medium text-sm">Wallet Required</span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground">
+                  Install Phantom wallet to make payments.
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2 pt-1">
+              {status === "confirmed" ? (
+                <Button
+                  className="w-full h-9 sm:h-10 text-sm"
+                  onClick={resetAndClose}
+                  data-testid="button-done"
+                >
+                  Done
+                </Button>
+              ) : status === "failed" ? (
+                <div className="flex gap-2">
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => copyToClipboard(signature, "Transaction")}
-                    data-testid="button-copy-signature"
+                    className="flex-1 h-9 sm:h-10 text-sm"
+                    onClick={handleRetry}
+                    data-testid="button-retry"
                   >
-                    {copied === "Transaction" ? (
-                      <Check className="w-3 h-3 text-green-500" />
+                    Try Again
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="h-9 sm:h-10 text-sm px-3"
+                    onClick={handleCancel}
+                    data-testid="button-cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1 h-9 sm:h-10 text-sm"
+                    onClick={handlePayment}
+                    disabled={processing || connecting}
+                    data-testid="button-pay"
+                  >
+                    {processing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : connecting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                        Connecting...
+                      </>
+                    ) : connected ? (
+                      `Pay ${currentAmount} ${currentSymbol}`
+                    ) : isPhantomInstalled ? (
+                      <>
+                        <Wallet className="w-4 h-4 mr-1.5" />
+                        Connect Wallet
+                      </>
                     ) : (
-                      <Copy className="w-3 h-3" />
+                      <>
+                        <Wallet className="w-4 h-4 mr-1.5" />
+                        Install Phantom
+                      </>
                     )}
                   </Button>
                   <Button
-                    size="icon"
                     variant="ghost"
-                    onClick={() => window.open(`https://solscan.io/tx/${signature}`, "_blank")}
-                    data-testid="button-view-explorer"
+                    className="h-9 sm:h-10 text-sm px-3"
+                    onClick={handleCancel}
+                    disabled={processing}
+                    data-testid="button-cancel"
                   >
-                    <ExternalLink className="w-3 h-3" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
-              </div>
+              )}
             </div>
-          )}
 
-          {status === "failed" && (
-            <div className="p-4 rounded-lg border border-destructive/20 bg-destructive/5 space-y-2">
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="w-5 h-5" />
-                <span className="font-medium">Payment Failed</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {errorMessage || "Transaction could not be completed. Please try again."}
-              </p>
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground pt-1">
+              <Shield className="w-2.5 h-2.5 flex-shrink-0" />
+              <span>Non-custodial payment on Solana</span>
             </div>
-          )}
-
-          {!isPhantomInstalled && !connected && (
-            <div className="p-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5 space-y-2">
-              <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
-                <AlertCircle className="w-5 h-5" />
-                <span className="font-medium">Wallet Required</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Install Phantom wallet to make PBTC payments. Click the button below to get started.
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-2 sm:space-y-3 pt-1 sm:pt-2">
-            {status === "confirmed" ? (
-              <Button
-                className="w-full h-10 sm:h-12 text-sm sm:text-base"
-                onClick={resetAndClose}
-                data-testid="button-done"
-              >
-                Done
-              </Button>
-            ) : status === "failed" ? (
-              <>
-                <Button
-                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
-                  onClick={handleRetry}
-                  data-testid="button-retry"
-                >
-                  Try Again
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full text-sm"
-                  onClick={handleCancel}
-                  data-testid="button-cancel"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
-                  onClick={handlePayment}
-                  disabled={processing || connecting}
-                  data-testid="button-pay"
-                >
-                  {processing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span className="hidden sm:inline">Processing Payment...</span>
-                      <span className="sm:hidden">Processing...</span>
-                    </>
-                  ) : connecting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span className="hidden sm:inline">Connecting Wallet...</span>
-                      <span className="sm:hidden">Connecting...</span>
-                    </>
-                  ) : connected ? (
-                    `Pay ${currentAmount} ${currentSymbol}`
-                  ) : isPhantomInstalled ? (
-                    <>
-                      <Wallet className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Connect Wallet to Pay</span>
-                      <span className="sm:hidden">Connect Wallet</span>
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Install Phantom Wallet</span>
-                      <span className="sm:hidden">Install Phantom</span>
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full text-sm"
-                  onClick={handleCancel}
-                  disabled={processing}
-                  data-testid="button-cancel"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1 sm:pt-2">
-            <Shield className="w-3 h-3 flex-shrink-0" />
-            <span className="text-center">Non-custodial payment powered by Solana</span>
           </div>
         </div>
       </DialogContent>
