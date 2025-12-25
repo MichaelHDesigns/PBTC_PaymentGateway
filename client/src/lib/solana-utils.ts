@@ -6,7 +6,7 @@ import {
   getAccount,
   createAssociatedTokenAccountInstruction
 } from "@solana/spl-token";
-import { PBTC_CONFIG } from "@shared/schema";
+import { PBTC_CONFIG, type TokenConfig, getTokenById } from "@shared/schema";
 
 declare global {
   interface Window {
@@ -58,17 +58,33 @@ export function getPBTCMint(): PublicKey {
   return new PublicKey(PBTC_CONFIG.mint);
 }
 
+export function getTokenMint(token: TokenConfig): PublicKey | null {
+  if (token.type === "native" || !token.mintAddress) {
+    return null;
+  }
+  return new PublicKey(token.mintAddress);
+}
+
 export async function getTokenBalance(
   connection: Connection,
-  ownerAddress: string
+  ownerAddress: string,
+  token?: TokenConfig
 ): Promise<number> {
   try {
     const owner = new PublicKey(ownerAddress);
-    const mint = getPBTCMint();
+    
+    if (!token || token.type === "native") {
+      const balance = await connection.getBalance(owner);
+      return balance / 1e9;
+    }
+    
+    if (!token.mintAddress) return 0;
+    
+    const mint = new PublicKey(token.mintAddress);
     const ata = await getAssociatedTokenAddress(mint, owner);
     
     const account = await getAccount(connection, ata);
-    return Number(account.amount) / Math.pow(10, PBTC_CONFIG.decimals);
+    return Number(account.amount) / Math.pow(10, token.decimals);
   } catch {
     return 0;
   }
@@ -80,15 +96,20 @@ export interface TransferResult {
   error?: string;
 }
 
-export async function createPBTCTransfer(
+export async function createSPLTransfer(
   connection: Connection,
   senderAddress: string,
   recipientAddress: string,
-  amount: number
+  amount: number,
+  token: TokenConfig
 ): Promise<Transaction> {
+  if (token.type === "native" || !token.mintAddress) {
+    throw new Error("Cannot create SPL transfer for native token");
+  }
+  
   const sender = new PublicKey(senderAddress);
   const recipient = new PublicKey(recipientAddress);
-  const mint = getPBTCMint();
+  const mint = new PublicKey(token.mintAddress);
   
   const senderATA = await getAssociatedTokenAddress(mint, sender);
   const recipientATA = await getAssociatedTokenAddress(mint, recipient);
@@ -108,7 +129,7 @@ export async function createPBTCTransfer(
     );
   }
   
-  const amountInBaseUnits = BigInt(Math.floor(amount * Math.pow(10, PBTC_CONFIG.decimals)));
+  const amountInBaseUnits = BigInt(Math.floor(amount * Math.pow(10, token.decimals)));
   
   transaction.add(
     createTransferInstruction(
@@ -129,10 +150,45 @@ export async function createPBTCTransfer(
   return transaction;
 }
 
-export async function sendPBTCPayment(
+export async function createPBTCTransfer(
+  connection: Connection,
+  senderAddress: string,
+  recipientAddress: string,
+  amount: number
+): Promise<Transaction> {
+  const pbtcToken: TokenConfig = {
+    id: "pbtc",
+    name: PBTC_CONFIG.name,
+    symbol: PBTC_CONFIG.symbol,
+    decimals: PBTC_CONFIG.decimals,
+    type: "spl",
+    mintAddress: PBTC_CONFIG.mint,
+    icon: "pbtc"
+  };
+  return createSPLTransfer(connection, senderAddress, recipientAddress, amount, pbtcToken);
+}
+
+export async function sendTokenPayment(
   recipientAddress: string,
   amount: number,
-  memo?: string
+  tokenId: string
+): Promise<TransferResult> {
+  const token = getTokenById(tokenId);
+  if (!token) {
+    return { success: false, error: `Unknown token: ${tokenId}` };
+  }
+  
+  if (token.type === "native") {
+    return sendSOLPayment(recipientAddress, amount);
+  }
+  
+  return sendSPLPayment(recipientAddress, amount, token);
+}
+
+export async function sendSPLPayment(
+  recipientAddress: string,
+  amount: number,
+  token: TokenConfig
 ): Promise<TransferResult> {
   if (!window.solana?.isPhantom) {
     return { success: false, error: "Phantom wallet not found" };
@@ -146,32 +202,21 @@ export async function sendPBTCPayment(
     const connection = await getConnectionAsync();
     const senderAddress = window.solana.publicKey.toString();
     
-    const balance = await getTokenBalance(connection, senderAddress);
+    const balance = await getTokenBalance(connection, senderAddress, token);
     if (balance < amount) {
       return { 
         success: false, 
-        error: `Insufficient PBTC balance. You have ${balance.toFixed(4)} PBTC but need ${amount} PBTC.` 
+        error: `Insufficient ${token.symbol} balance. You have ${balance.toFixed(4)} ${token.symbol} but need ${amount} ${token.symbol}.` 
       };
     }
     
-    const transaction = await createPBTCTransfer(
+    const transaction = await createSPLTransfer(
       connection,
       senderAddress,
       recipientAddress,
-      amount
+      amount,
+      token
     );
-    
-    if (memo) {
-      transaction.add(
-        new Transaction().add(
-          SystemProgram.transfer({
-            fromPubkey: new PublicKey(senderAddress),
-            toPubkey: new PublicKey(senderAddress),
-            lamports: 0,
-          })
-        )
-      );
-    }
     
     const result = await window.solana.signAndSendTransaction(transaction);
     
@@ -187,6 +232,23 @@ export async function sendPBTCPayment(
     const message = error instanceof Error ? error.message : "Transaction failed";
     return { success: false, error: message };
   }
+}
+
+export async function sendPBTCPayment(
+  recipientAddress: string,
+  amount: number,
+  _memo?: string
+): Promise<TransferResult> {
+  const pbtcToken: TokenConfig = {
+    id: "pbtc",
+    name: PBTC_CONFIG.name,
+    symbol: PBTC_CONFIG.symbol,
+    decimals: PBTC_CONFIG.decimals,
+    type: "spl",
+    mintAddress: PBTC_CONFIG.mint,
+    icon: "pbtc"
+  };
+  return sendSPLPayment(recipientAddress, amount, pbtcToken);
 }
 
 export async function sendSOLPayment(
@@ -249,7 +311,8 @@ export async function sendSOLPayment(
 export async function verifyTransactionOnChain(
   signature: string,
   expectedRecipient: string,
-  expectedAmount: number
+  expectedAmount: number,
+  tokenId?: string
 ): Promise<{ verified: boolean; error?: string }> {
   try {
     const connection = getConnection();
@@ -265,11 +328,29 @@ export async function verifyTransactionOnChain(
       return { verified: false, error: "Transaction failed" };
     }
     
+    const token = tokenId ? getTokenById(tokenId) : getTokenById("pbtc");
+    
+    if (!token || token.type === "native") {
+      const preBalances = tx.meta?.preBalances || [];
+      const postBalances = tx.meta?.postBalances || [];
+      const accountKeys = tx.transaction.message.getAccountKeys().staticAccountKeys;
+      
+      for (let i = 0; i < accountKeys.length; i++) {
+        if (accountKeys[i].toString() === expectedRecipient) {
+          const received = (postBalances[i] - preBalances[i]) / 1e9;
+          if (Math.abs(received - expectedAmount) < 0.0001) {
+            return { verified: true };
+          }
+        }
+      }
+      return { verified: false, error: "Amount or recipient mismatch" };
+    }
+    
     const postBalances = tx.meta?.postTokenBalances || [];
     const preBalances = tx.meta?.preTokenBalances || [];
     
     const recipientPost = postBalances.find(
-      (b) => b.owner === expectedRecipient && b.mint === PBTC_CONFIG.mint
+      (b) => b.owner === expectedRecipient && b.mint === token.mintAddress
     );
     
     if (!recipientPost) {
@@ -277,7 +358,7 @@ export async function verifyTransactionOnChain(
     }
     
     const recipientPre = preBalances.find(
-      (b) => b.owner === expectedRecipient && b.mint === PBTC_CONFIG.mint
+      (b) => b.owner === expectedRecipient && b.mint === token.mintAddress
     );
     
     const postAmount = parseFloat(recipientPost.uiTokenAmount?.uiAmountString || "0");

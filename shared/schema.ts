@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, real, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import tokensConfig from "./tokens.json";
 
 export const users = pgTable("users", {
   id: varchar("id")
@@ -19,7 +20,39 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// PBTC Payment Types
+// Token Configuration Types
+export interface TokenConfig {
+  id: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  type: "native" | "spl";
+  mintAddress: string | null;
+  icon: string;
+}
+
+// Export tokens from config
+export const SUPPORTED_TOKENS: TokenConfig[] = tokensConfig.tokens as TokenConfig[];
+
+// Get token by ID
+export function getTokenById(id: string): TokenConfig | undefined {
+  return SUPPORTED_TOKENS.find(t => t.id === id);
+}
+
+// Get token by symbol
+export function getTokenBySymbol(symbol: string): TokenConfig | undefined {
+  return SUPPORTED_TOKENS.find(t => t.symbol.toLowerCase() === symbol.toLowerCase());
+}
+
+// Get SPL tokens only
+export function getSPLTokens(): TokenConfig[] {
+  return SUPPORTED_TOKENS.filter(t => t.type === "spl");
+}
+
+// Payment Types - now supports any token ID
+export type PaymentType = string;
+
+// Payment Request Table
 export const paymentRequests = pgTable("payment_requests", {
   id: varchar("id")
     .primaryKey()
@@ -31,7 +64,7 @@ export const paymentRequests = pgTable("payment_requests", {
   status: text("status").notNull().default("pending"),
   signature: text("signature"),
   expectedPayer: text("expected_payer"),
-  paymentType: text("payment_type").notNull().default("PBTC"),
+  paymentType: text("payment_type").notNull().default("pbtc"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -52,7 +85,7 @@ export const initPaymentSchema = z.object({
   reference: z.string().min(1, "Reference is required"),
   memo: z.string().optional(),
   payerWallet: z.string().min(32, "Payer wallet is required").optional(),
-  paymentType: z.enum(["PBTC", "SOL"]).default("PBTC"),
+  paymentType: z.string().default("pbtc"),
 });
 
 export type InsertPaymentRequest = z.infer<typeof insertPaymentRequestSchema>;
@@ -75,7 +108,11 @@ export interface VerifyPaymentResponse {
   error?: string;
 }
 
-// Payment checkout props
+// Payment checkout props - now with token amounts map
+export interface TokenAmounts {
+  [tokenId: string]: number;
+}
+
 export interface PBTCCheckoutProps {
   amount: number;
   merchantWallet: string;
@@ -84,10 +121,9 @@ export interface PBTCCheckoutProps {
   onSuccess?: (signature: string) => void;
   onError?: (error: Error) => void;
   onCancel?: () => void;
+  tokenAmounts?: TokenAmounts;
+  enabledTokens?: string[];
 }
-
-// Payment type
-export type PaymentType = "PBTC" | "SOL";
 
 // Transaction status types
 export type TransactionStatus =
@@ -104,11 +140,12 @@ export interface TransactionDetails {
   reference: string;
   timestamp?: string;
   confirmations?: number;
+  tokenId?: string;
 }
 
-// PBTC Token Configuration
+// Legacy PBTC Config for backward compatibility
 export const PBTC_CONFIG = {
-  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p", // Purple Bitcoin mint address
+  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p",
   decimals: 9,
   symbol: "PBTC",
   name: "Purple Bitcoin",
