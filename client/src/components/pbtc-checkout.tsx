@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useWallet, truncateAddress } from "@/lib/wallet-context";
-import { sendTokenPayment } from "@/lib/solana-utils";
+import { sendTokenPayment, getTokenBalance, getConnectionAsync } from "@/lib/solana-utils";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_TOKENS, type PBTCCheckoutProps, type TransactionStatus, type TokenConfig } from "@shared/schema";
 import { Wallet, Copy, Check, ExternalLink, Shield, Loader2, AlertCircle, X, ChevronDown } from "lucide-react";
@@ -67,6 +67,42 @@ export function PBTCCheckout({
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedTokenId, setSelectedTokenId] = useState<string>("pbtc");
+  const [tokenBalances, setTokenBalances] = useState<Record<string, number>>({});
+  const [loadingBalances, setLoadingBalances] = useState(false);
+
+  // Fetch balances when wallet is connected
+  useEffect(() => {
+    if (!connected || !publicKey) {
+      setTokenBalances({});
+      return;
+    }
+
+    const fetchBalances = async () => {
+      setLoadingBalances(true);
+      try {
+        const connection = await getConnectionAsync();
+        const balances: Record<string, number> = {};
+        
+        for (const token of SUPPORTED_TOKENS) {
+          try {
+            const balance = await getTokenBalance(connection, publicKey, token);
+            balances[token.id] = balance;
+          } catch (error) {
+            console.error(`Error fetching ${token.symbol} balance:`, error);
+            balances[token.id] = 0;
+          }
+        }
+        
+        setTokenBalances(balances);
+      } catch (error) {
+        console.error("Error fetching balances:", error);
+      } finally {
+        setLoadingBalances(false);
+      }
+    };
+
+    fetchBalances();
+  }, [connected, publicKey]);
 
   const availableTokens = useMemo(() => {
     if (enabledTokens && enabledTokens.length > 0) {
@@ -255,15 +291,25 @@ export function PBTCCheckout({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {availableTokens.map((token) => (
-                      <SelectItem key={token.id} value={token.id} data-testid={`select-token-${token.id}`}>
-                        <div className="flex items-center gap-2">
-                          <TokenIcon token={token} className="w-4 h-4" />
-                          <span className="font-medium">{token.symbol}</span>
-                          <span className="text-muted-foreground">- {token.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {availableTokens.map((token) => {
+                      const balance = tokenBalances[token.id];
+                      const hasBalance = balance !== undefined && balance > 0;
+                      return (
+                        <SelectItem key={token.id} value={token.id} data-testid={`select-token-${token.id}`}>
+                          <div className="flex items-center justify-between gap-3 w-full">
+                            <div className="flex items-center gap-2">
+                              <TokenIcon token={token} className="w-4 h-4" />
+                              <span className="font-medium">{token.symbol}</span>
+                            </div>
+                            {connected && (
+                              <span className={`text-xs ${hasBalance ? 'text-muted-foreground' : 'text-destructive'}`}>
+                                {loadingBalances ? '...' : balance !== undefined ? balance.toFixed(4) : '0'}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
