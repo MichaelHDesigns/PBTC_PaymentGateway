@@ -92,7 +92,7 @@ Verify a transaction on-chain
 ## PBTC Token Configuration
 
 Located in `shared/schema.ts`:
-- Mint Address: `PBTCz8mujDAFSiSSoVF1c2hc2YfgSBc4zVNHqeEZzzy`
+- Mint Address: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
 - Decimals: 9
 - Network: Solana mainnet-beta
 

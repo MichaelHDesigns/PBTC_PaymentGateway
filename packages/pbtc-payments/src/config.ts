@@ -1,5 +1,5 @@
 export const PBTC_CONFIG = {
-  mint: "PBTCz8mujDAFSiSSoVF1c2hc2YfgSBc4zVNHqeEZzzy",
+  mint: "HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p",
   decimals: 9,
   symbol: "PBTC",
   name: "Purple Bitcoin",

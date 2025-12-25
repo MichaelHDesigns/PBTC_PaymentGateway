@@ -146,7 +146,7 @@ Verify a transaction directly on-chain.
 
 ## PBTC Token Configuration
 
-- **Mint Address**: `PBTCz8mujDAFSiSSoVF1c2hc2YfgSBc4zVNHqeEZzzy`
+- **Mint Address**: `HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p`
 - **Decimals**: 9
 - **Network**: Solana mainnet-beta
 
@@ -183,4 +183,4 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## Links
 
 - [GitHub Repository](https://github.com/MichaelHDesigns/PBTC_PaymentGateway)
-- [PBTC Token on Solscan](https://solscan.io/token/PBTCz8mujDAFSiSSoVF1c2hc2YfgSBc4zVNHqeEZzzy)
+- [PBTC Token on Solscan](https://solscan.io/token/HfMbPyDdZH6QMaDDUokjYCkHxzjoGBMpgaUvpLWGbF5p)
