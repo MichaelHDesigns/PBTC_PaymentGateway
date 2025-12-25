@@ -13,9 +13,6 @@ import { useWallet, truncateAddress } from "@/lib/wallet-context";
 import { useToast } from "@/hooks/use-toast";
 import {
   Wallet,
-  Shield,
-  Zap,
-  Code,
   Copy,
   Check,
   ArrowRight,
@@ -264,66 +261,6 @@ if (paid) {
             >
               <ChevronDown className="w-5 h-5" />
             </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 sm:py-16 md:py-24 border-t">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4" data-testid="text-features-title">
-              Why Choose PBTC Pay?
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-              Built for developers who want to accept PBTC without the complexity
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="hover-elevate" data-testid="card-feature-1">
-              <CardHeader className="pb-2 sm:pb-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
-                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                </div>
-                <CardTitle className="text-base sm:text-lg">Non-Custodial</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-xs sm:text-sm">
-                  Users pay directly from their wallet to yours. We never hold funds.
-                  No custody, no legal complexity.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate" data-testid="card-feature-2">
-              <CardHeader className="pb-2 sm:pb-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                </div>
-                <CardTitle className="text-base sm:text-lg">Instant Settlement</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-xs sm:text-sm">
-                  Solana-speed transactions. Funds arrive in your wallet within seconds.
-                  No waiting, no chargebacks.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate sm:col-span-2 lg:col-span-1" data-testid="card-feature-3">
-              <CardHeader className="pb-2 sm:pb-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3">
-                  <Code className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                </div>
-                <CardTitle className="text-base sm:text-lg">Developer First</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-xs sm:text-sm">
-                  Drop-in React component. Copy-paste integration. Full TypeScript support.
-                  Get started in 5 minutes.
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
