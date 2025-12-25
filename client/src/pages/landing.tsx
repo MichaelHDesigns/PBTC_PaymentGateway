@@ -504,7 +504,9 @@ if (paid) {
                 <div className="p-3 sm:p-4 rounded-lg bg-muted/50 space-y-1">
                   <code className="font-mono text-xs sm:text-sm block">client/src/components/pbtc-checkout.tsx</code>
                   <code className="font-mono text-xs sm:text-sm block">client/src/lib/wallet-context.tsx</code>
+                  <code className="font-mono text-xs sm:text-sm block">client/src/lib/solana-utils.ts</code>
                   <code className="font-mono text-xs sm:text-sm block">shared/schema.ts</code>
+                  <code className="font-mono text-xs sm:text-sm block">shared/tokens.json</code>
                 </div>
               </CardContent>
             </Card>
