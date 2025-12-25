@@ -189,6 +189,61 @@ export async function sendPBTCPayment(
   }
 }
 
+export async function sendSOLPayment(
+  recipientAddress: string,
+  amount: number
+): Promise<TransferResult> {
+  if (!window.solana?.isPhantom) {
+    return { success: false, error: "Phantom wallet not found" };
+  }
+  
+  if (!window.solana.publicKey) {
+    return { success: false, error: "Wallet not connected" };
+  }
+  
+  try {
+    const connection = await getConnectionAsync();
+    const senderAddress = window.solana.publicKey.toString();
+    
+    const balance = await connection.getBalance(new PublicKey(senderAddress));
+    const balanceInSOL = balance / 1e9;
+    
+    if (balanceInSOL < amount + 0.001) {
+      return { 
+        success: false, 
+        error: `Insufficient SOL balance. You have ${balanceInSOL.toFixed(4)} SOL but need ${amount} SOL plus fees.` 
+      };
+    }
+    
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: new PublicKey(senderAddress),
+        toPubkey: new PublicKey(recipientAddress),
+        lamports: Math.floor(amount * 1e9),
+      })
+    );
+    
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.lastValidBlockHeight = lastValidBlockHeight;
+    transaction.feePayer = new PublicKey(senderAddress);
+    
+    const result = await window.solana.signAndSendTransaction(transaction);
+    
+    await connection.confirmTransaction({
+      signature: result.signature,
+      blockhash: transaction.recentBlockhash!,
+      lastValidBlockHeight: transaction.lastValidBlockHeight!,
+    });
+    
+    return { success: true, signature: result.signature };
+  } catch (error) {
+    console.error("SOL Payment error:", error);
+    const message = error instanceof Error ? error.message : "Transaction failed";
+    return { success: false, error: message };
+  }
+}
+
 export async function verifyTransactionOnChain(
   signature: string,
   expectedRecipient: string,

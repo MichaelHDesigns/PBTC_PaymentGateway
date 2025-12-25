@@ -83,6 +83,9 @@ export interface PBTCCheckoutProps {
   onCancel?: () => void;
 }
 
+// Payment type
+export type PaymentType = "PBTC" | "SOL";
+
 // Transaction status types
 export type TransactionStatus =
   | "pending"
